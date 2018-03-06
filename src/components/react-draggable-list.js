@@ -91,7 +91,7 @@ export default class extends PureComponent{
       <div className={classNames('react-draggable-list', className)} {...props} ref={this._sortableGroupDecorator}>
           {
             items.map((item, index) => (
-              <div key={itemKey || index} className='react-draggable-list-item'>
+              <div key={item[itemKey] || index} className='react-draggable-list-item'>
                 { handles && (<span className='react-draggable-list-handles'>&#9776;</span>) }
                 { template(item, index) }
               </div>
