@@ -13,7 +13,7 @@ export default class extends PureComponent{
     handles: PropTypes.bool,
     animation: PropTypes.number,
     onChange: PropTypes.func,
-    itemKey: PropTypes.string,
+    itemKey: PropTypes.any,
     items: PropTypes.array,
   };
 
