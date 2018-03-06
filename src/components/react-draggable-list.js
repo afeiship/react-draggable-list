@@ -21,6 +21,7 @@ export default class extends PureComponent{
     handles: false,
     animation: 150,
     onChange: noop,
+    itemKey: 'id',
     items: []
   };
 
