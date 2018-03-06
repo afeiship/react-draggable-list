@@ -45,12 +45,19 @@ export default class extends PureComponent{
     const { items, onChange, itemKey } = this.props;
     const oldItem = items[oldIndex];
     const newItem = items[newIndex];
-
-    items[newIndex] = oldItem;
-    items[oldIndex] = newItem;
+    //up
+    if( newIndex < oldIndex ){
+      items.splice(oldIndex,1);
+      items.splice(newIndex , 0 , oldItem);
+    }else{
+    //down:
+      items.splice(newIndex + 1, 0, oldItem);
+      items.splice(oldIndex , 1 );
+    }
 
     const value = items.map((item,index)=>item[itemKey || index]);
     objectAssign( inEvent.target, { value, items } );
+
     this.setState({ items },()=>{
       onChange(inEvent);
     });
@@ -60,20 +67,19 @@ export default class extends PureComponent{
   _sortableGroupDecorator = (componentBackingInstance) => {
     // check if backing instance not null
     if (componentBackingInstance) {
-      const { animation, onUpdate, ghostClass, chosenClass, dragClass } = this.props;
+      const { animation,rowKey } = this.props;
       // const ghostClass = ;
       const options = {
         animation: animation,
-        draggable: `.react-draggable-list-draggableRow`, // Specifies which items inside the element should be sortable
+        dataIdAttr:rowKey,
+        draggable: '.react-draggable-list-item', // Specifies which items inside the element should be sortable
         // group: "shared",
-        ghostClass: ghostClass || `.react-draggable-list-ghost`, // Class name for the drop placeholder
-        chosenClass: chosenClass || `.react-draggable-list-chosen`,  // Class name for the chosen item
-        dragClass: dragClass || `.react-draggable-list-drag`,  // Class name for the dragging item
-        onUpdate: (inEvent) => {
-         this._onUpdate(inEvent);
-        }
+        ghostClass: '.react-draggable-list-ghost', // Class name for the drop placeholder
+        chosenClass: '.react-draggable-list-chosen',  // Class name for the chosen item
+        dragClass: '.react-draggable-list-drag',  // Class name for the dragging item
+        onUpdate: this._onUpdate
       };
-      Sortable.create(componentBackingInstance, options);
+      this._sortableIntance = Sortable.create(componentBackingInstance, options);
     }
   };
 
@@ -84,7 +90,7 @@ export default class extends PureComponent{
       <div className={classNames('react-draggable-list', className)} {...props} ref={this._sortableGroupDecorator}>
           {
             items.map((item, index) => (
-              <div key={index || itemKey} className='react-draggable-list-draggableRow'>
+              <div key={index || itemKey} className='react-draggable-list-item'>
                 { handles && (<span className='react-draggable-list-handles'>&#9776;</span>) }
                 { template(item, index) }
               </div>

@@ -8,6 +8,11 @@ ul,li{list-style: none;}
   color:#F00;
   padding:50px 20px;
 
+  .react-draggable-list-item{
+    border: 1px solid saddlebrown;
+    padding: 10px;
+    margin-bottom: 10px;;
+  }
   button{
     border: none;
     display: block;

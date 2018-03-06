@@ -49,8 +49,9 @@ class App extends React.Component {
         window.rc = this.refs.rc;
     }
     _onChange = e =>{
-      const { value } = e.target;
-      console.log(value);
+      const { value, items } = e.target;
+      console.log(value,items);
+      // this.setState({ items });
     };
 
     render() {
