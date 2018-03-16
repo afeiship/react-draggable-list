@@ -73,11 +73,11 @@ export default class extends PureComponent{
       const options = {
         animation: animation,
         dataIdAttr:rowKey,
-        draggable: '.react-draggable-list-item', // Specifies which items inside the element should be sortable
+        draggable: 'react-draggable-list-item', // Specifies which items inside the element should be sortable
         // group: "shared",
-        ghostClass: '.react-draggable-list-ghost', // Class name for the drop placeholder
-        chosenClass: '.react-draggable-list-chosen',  // Class name for the chosen item
-        dragClass: '.react-draggable-list-drag',  // Class name for the dragging item
+        ghostClass: 'react-draggable-list-ghost', // Class name for the drop placeholder
+        chosenClass: 'react-draggable-list-chosen',  // Class name for the chosen item
+        dragClass: 'react-draggable-list-drag',  // Class name for the dragging item
         onUpdate: this._onUpdate
       };
       this._sortableIntance = Sortable.create(componentBackingInstance, options);
