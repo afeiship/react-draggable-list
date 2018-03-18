@@ -15,7 +15,7 @@ export default class extends PureComponent{
     onChange: PropTypes.func,
     itemKey: PropTypes.any,
     items: PropTypes.array,
-    sortableOptions:{}
+    sortableOptions:PropTypes.object,
   };
 
   static defaultProps = {
@@ -23,7 +23,8 @@ export default class extends PureComponent{
     animation: 150,
     onChange: noop,
     itemKey: 'id',
-    items: []
+    items: [],
+    sortableOptions:{}
   };
 
   /*===properties end===*/
