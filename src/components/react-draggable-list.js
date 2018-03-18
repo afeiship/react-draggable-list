@@ -15,6 +15,7 @@ export default class extends PureComponent{
     onChange: PropTypes.func,
     itemKey: PropTypes.any,
     items: PropTypes.array,
+    sortableOptions:{}
   };
 
   static defaultProps = {
@@ -70,7 +71,7 @@ export default class extends PureComponent{
     if (componentBackingInstance) {
       const { animation,rowKey } = this.props;
       // const ghostClass = ;
-      const options = {
+      const options = objectAssign({
         animation: animation,
         dataIdAttr:rowKey,
         draggable: '.react-draggable-list-item', // Specifies which items inside the element should be sortable
@@ -79,7 +80,7 @@ export default class extends PureComponent{
         chosenClass: 'react-draggable-list-chosen',  // Class name for the chosen item
         dragClass: 'react-draggable-list-drag',  // Class name for the dragging item
         onUpdate: this._onUpdate
-      };
+      }, sortableOptions);
       this._sortableIntance = Sortable.create(componentBackingInstance, options);
     }
   };
