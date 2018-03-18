@@ -70,11 +70,11 @@ export default class extends PureComponent{
   _sortableGroupDecorator = (componentBackingInstance) => {
     // check if backing instance not null
     if (componentBackingInstance) {
-      const { animation,rowKey } = this.props;
+      const { animation, itemKey, sortableOptions } = this.props;
       // const ghostClass = ;
       const options = objectAssign({
         animation: animation,
-        dataIdAttr:rowKey,
+        dataIdAttr:itemKey,
         draggable: '.react-draggable-list-item', // Specifies which items inside the element should be sortable
         // group: "shared",
         ghostClass: 'react-draggable-list-ghost', // Class name for the drop placeholder
