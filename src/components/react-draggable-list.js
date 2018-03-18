@@ -88,7 +88,7 @@ export default class extends PureComponent{
 
 
   render() {
-    const { className, animation, items, template, itemKey, handles, ...props } = this.props;
+    const { className, animation, items, template, itemKey, handles,sortableOptions, ...props } = this.props;
     return (
       <div className={classNames('react-draggable-list', className)} {...props} ref={this._sortableGroupDecorator}>
           {
