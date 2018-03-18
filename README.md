@@ -10,15 +10,18 @@
     handles: PropTypes.bool,
     animation: PropTypes.number,
     onChange: PropTypes.func,
-    itemKey: PropTypes.string,
+    itemKey: PropTypes.any,
     items: PropTypes.array,
+    sortableOptions:PropTypes.object,
   };
 
   static defaultProps = {
     handles: false,
     animation: 150,
     onChange: noop,
-    items: []
+    itemKey: 'id',
+    items: [],
+    sortableOptions:{}
   };
 
   
