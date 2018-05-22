@@ -39,6 +39,38 @@ class App extends React.Component {
           img: 'http://placeholder.qiniudn.com/150x150',
           description: '讲述大唐传奇的奇幻剧'
         }
+      ],
+      items2: [
+        {
+          title: '猫妖传1',
+          img: 'http://placeholder.qiniudn.com/150x150',
+          description: '讲述大唐传奇的奇幻剧'
+        },
+        {
+          title: '猫妖传2',
+          img: 'http://placeholder.qiniudn.com/150x150',
+          description: '讲述大唐传奇的奇幻剧'
+        },
+        {
+          title: '猫妖传3',
+          img: 'http://placeholder.qiniudn.com/150x150',
+          description: '讲述大唐传奇的奇幻剧'
+        },
+        {
+          title: '猫妖传4',
+          img: 'http://placeholder.qiniudn.com/150x150',
+          description: '讲述大唐传奇的奇幻剧'
+        },
+        {
+          title: '猫妖传5',
+          img: 'http://placeholder.qiniudn.com/150x150',
+          description: '讲述大唐传奇的奇幻剧'
+        },
+        {
+          title: '猫妖传6',
+          img: 'http://placeholder.qiniudn.com/150x150',
+          description: '讲述大唐传奇的奇幻剧'
+        }
       ]
     };
 
@@ -57,12 +89,21 @@ class App extends React.Component {
     render() {
         return (
             <div className="hello-react-draggable-list">
-                <ReactDraggableList
-                  onChange={this._onChange}
-                  template={(item, index) => <div>{ item.title }</div>}
-                  itemKey='title'
-                  items={ this.state.items }
-                  ref='rc'/>
+            <ReactDraggableList
+              className="dg1"
+              onChange={this._onChange}
+              template={(item, index) => <div>{item.title}</div>}
+              itemKey='title'
+              items={this.state.items}
+              ref='rc' />
+
+            <ReactDraggableList
+              className="dg2"
+              onChange={this._onChange}
+              template={(item, index) => <div>{item.title}</div>}
+              itemKey='title'
+              items={this.state.items2}
+              ref='rc' />
             </div>
         );
     }
@@ -70,4 +111,5 @@ class App extends React.Component {
 /*===example end===*/
 
 ReactDOM.render(
-    <App/>, document.getElementById('app'));
+  <App/>, document.getElementById('app')
+);

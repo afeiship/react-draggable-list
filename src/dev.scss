@@ -8,10 +8,27 @@ ul,li{list-style: none;}
   color:#F00;
   padding:50px 20px;
 
-  .react-draggable-list-item{
-    border: 1px solid saddlebrown;
-    padding: 10px;
-    margin-bottom: 10px;;
+  .dg1{
+    overflow: hidden;
+    height:1%;
+    .react-draggable-list-item{
+      border: 1px solid saddlebrown;
+      padding: 10px;
+      margin-bottom: 10px;;
+      width: 200px;
+      height: 120px;
+      margin-right: 10px;
+      margin-bottom: 20px;
+      float: left;
+    }
+  }
+
+  .dg2{
+    .react-draggable-list-item{
+      border: 1px solid saddlebrown;
+      padding: 10px;
+      margin-bottom: 10px;;
+    }
   }
   button{
     border: none;
