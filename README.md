@@ -24,7 +24,7 @@
     sortableOptions:{}
   };
 
-  
+
 ```
 
 ## usage:
@@ -148,4 +148,4 @@ $react-draggable-list-options:(
 ```
 
 ## resouces:
-+ https://rubaxa.github.io/Sortable/
++ https://github.com/SortableJS/Sortable
