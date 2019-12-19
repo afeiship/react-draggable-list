@@ -1,0 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+html,
+body,
+#app,
+.app-container {
+  height: 100%;
+}
+
+@import "@/components/style.scss";
+
+.app-container {
+  padding: 50px 20px;
+  margin-bottom: 20px;
+  .react-draggable-list-item{
+    cursor: move;
+  }
+
+  .dg1 {
+    overflow: hidden;
+    .react-draggable-list-item {
+      border: 1px solid saddlebrown;
+      padding: 10px;
+      margin-bottom: 10px;
+      width: 200px;
+      height: 120px;
+      margin-right: 10px;
+      margin-bottom: 20px;
+      float: left;
+    }
+  }
+
+  .dg2 {
+    .react-draggable-list-item {
+      border: 1px solid saddlebrown;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  }
+}

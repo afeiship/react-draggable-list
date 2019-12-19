@@ -1,2 +1,2 @@
-import ReactDraggableList from 'components/react-draggable-list';
+import ReactDraggableList from './components';
 export default ReactDraggableList;
