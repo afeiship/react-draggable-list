@@ -112,8 +112,7 @@ npm update @feizheng/react-draggable-list
 
     onChange = (e) => {
       const { value } = e.target;
-      console.log(value);
-      // this.setState({ items });
+      console.log('value: ',value);
     };
 
     render() {
@@ -122,19 +121,17 @@ npm update @feizheng/react-draggable-list
           <ReactDraggableList
             className="dg1"
             onChange={this.onChange}
-            template={({item, index}) => <div>{item.title}</div>}
+            template={({ item }) => <div>{item.title}</div>}
             rowKey="title"
             items={this.state.items}
-            ref="rc"
           />
 
           <ReactDraggableList
             className="dg2"
             onChange={this.onChange}
-            template={({item, index}) => <div>{item.title}</div>}
+            template={({ item }) => <div>{item.title}</div>}
             rowKey="title"
             items={this.state.items2}
-            ref="rc"
           />
         </div>
       );
