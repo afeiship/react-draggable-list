@@ -49,7 +49,7 @@ export default class ReactDraggableList extends Component {
     items: [],
     template: noop,
     rowKey: 'id',
-    options: {}
+    options: DEFAULT_SORTABLE_OPTIONS
   };
 
   template = ({ item, index }) => {
@@ -83,7 +83,6 @@ export default class ReactDraggableList extends Component {
     const compoutedOptions = {
       dataIdAttr: rowKey,
       onUpdate: this.handleUpdate,
-      ...DEFAULT_SORTABLE_OPTIONS,
       ...options
     };
 
