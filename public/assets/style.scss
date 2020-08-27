@@ -12,15 +12,30 @@ body,
 @import "@/components/style.scss";
 
 .app-container {
-  padding: 50px 20px;
-  margin-bottom: 20px;
-  .react-draggable-list-item{
-    cursor: move;
+  padding: 50px;
+  box-sizing: border-box;
+  .button {
+    background: #3cc51f;
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    color: #fff;
+    padding: 20px;
+    border: none;
+
+    &:active {
+      background: darken(#3cc51f, 10%);
+    }
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .dg1 {
     overflow: hidden;
-    .react-draggable-list-item {
+    .react-draggable-list__item {
       border: 1px solid saddlebrown;
       padding: 10px;
       margin-bottom: 10px;
@@ -33,7 +48,7 @@ body,
   }
 
   .dg2 {
-    .react-draggable-list-item {
+    .react-draggable-list__item {
       border: 1px solid saddlebrown;
       padding: 10px;
       margin-bottom: 10px;

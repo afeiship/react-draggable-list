@@ -1,6 +1,6 @@
-import ReactDraggableList from '../src/main';
-import ReactDOM from 'react-dom';
 import React from 'react';
+import ReactDOM from 'react-dom';
+import ReactDraggableList from '../src/main';
 import './assets/style.scss';
 
 class App extends React.Component {
@@ -72,9 +72,9 @@ class App extends React.Component {
   };
 
   onChange = (e) => {
-    const { value, items } = e.target;
-    console.log(value, items);
-    this.setState({ items });
+    const { value } = e.target;
+    console.log(value);
+    // this.setState({ items });
   };
 
   render() {
@@ -83,8 +83,8 @@ class App extends React.Component {
         <ReactDraggableList
           className="dg1"
           onChange={this.onChange}
-          template={(item, index) => <div>{item.title}</div>}
-          itemKey="title"
+          template={({item, index}) => <div>{item.title}</div>}
+          rowKey="title"
           items={this.state.items}
           ref="rc"
         />
@@ -92,8 +92,8 @@ class App extends React.Component {
         <ReactDraggableList
           className="dg2"
           onChange={this.onChange}
-          template={(item, index) => <div>{item.title}</div>}
-          itemKey="title"
+          template={({item, index}) => <div>{item.title}</div>}
+          rowKey="title"
           items={this.state.items2}
           ref="rc"
         />

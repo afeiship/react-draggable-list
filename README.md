@@ -1,16 +1,31 @@
 # react-draggable-list
 > A simple draggable list component.
 
+[![version][version-image]][version-url]
+[![license][license-image]][license-url]
+[![size][size-image]][size-url]
+[![download][download-image]][download-url]
+
 ## installation
 ```shell
 npm install -S @feizheng/react-draggable-list
 ```
+
+## update
+```shell
+npm update @feizheng/react-draggable-list
+```
+
 ## properties
-| property        | type | description |
-| --------------- | ---- | ----------- |
-| className       | -    | -           |
-| value           | -    | -           |
-| onChange        | -    | -           |
+| Name      | Type   | Required | Default | Description                                                                              |
+| --------- | ------ | -------- | ------- | ---------------------------------------------------------------------------------------- |
+| className | string | false    | -       | The extended className for component.                                                    |
+| onChange  | func   | false    | noop    | When sortable list changed.                                                              |
+| items     | array  | false    | []      | The list data source.                                                                    |
+| template  | func   | false    | noop    | The list item template.                                                                  |
+| rowKey    | any    | false    | 'id'    | The uniq row key.                                                                        |
+| options   | object | false    | {}      | The core sortable component options (@sortable: https://github.com/SortableJS/Sortable). |
+
 
 ## usage
 1. import css
@@ -22,9 +37,9 @@ npm install -S @feizheng/react-draggable-list
   ```
 2. import js
   ```js
-  import ReactDraggableList from '../src/main';
-  import ReactDOM from 'react-dom';
   import React from 'react';
+  import ReactDOM from 'react-dom';
+  import ReactDraggableList from '@feizheng/react-draggable-list';
   import './assets/style.scss';
 
   class App extends React.Component {
@@ -96,9 +111,9 @@ npm install -S @feizheng/react-draggable-list
     };
 
     onChange = (e) => {
-      const { value, items } = e.target;
-      console.log(value, items);
-      this.setState({ items });
+      const { value } = e.target;
+      console.log(value);
+      // this.setState({ items });
     };
 
     render() {
@@ -107,8 +122,8 @@ npm install -S @feizheng/react-draggable-list
           <ReactDraggableList
             className="dg1"
             onChange={this.onChange}
-            template={(item, index) => <div>{item.title}</div>}
-            itemKey="title"
+            template={({item, index}) => <div>{item.title}</div>}
+            rowKey="title"
             items={this.state.items}
             ref="rc"
           />
@@ -116,8 +131,8 @@ npm install -S @feizheng/react-draggable-list
           <ReactDraggableList
             className="dg2"
             onChange={this.onChange}
-            template={(item, index) => <div>{item.title}</div>}
-            itemKey="title"
+            template={({item, index}) => <div>{item.title}</div>}
+            rowKey="title"
             items={this.state.items2}
             ref="rc"
           />
@@ -127,7 +142,24 @@ npm install -S @feizheng/react-draggable-list
   }
 
   ReactDOM.render(<App />, document.getElementById('app'));
+
   ```
 
 ## documentation
 - https://afeiship.github.io/react-draggable-list/
+
+
+## license
+Code released under [the MIT license](https://github.com/afeiship/react-draggable-list/blob/master/LICENSE.txt).
+
+[version-image]: https://img.shields.io/npm/v/@feizheng/react-draggable-list
+[version-url]: https://npmjs.org/package/@feizheng/react-draggable-list
+
+[license-image]: https://img.shields.io/npm/l/@feizheng/react-draggable-list
+[license-url]: https://github.com/afeiship/react-draggable-list/blob/master/LICENSE.txt
+
+[size-image]: https://img.shields.io/bundlephobia/minzip/@feizheng/react-draggable-list
+[size-url]: https://github.com/afeiship/react-draggable-list/blob/master/dist/react-draggable-list.min.js
+
+[download-image]: https://img.shields.io/npm/dm/@feizheng/react-draggable-list
+[download-url]: https://www.npmjs.com/package/@feizheng/react-draggable-list

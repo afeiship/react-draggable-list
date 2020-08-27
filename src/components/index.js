@@ -1,53 +1,70 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import noop from '@feizheng/noop';
+import ReactList from '@feizheng/react-list';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import Sortable from 'sortablejs';
-import objectAssign from 'object-assign';
 
 const CLASS_NAME = 'react-draggable-list';
+const DEFAULT_SORTABLE_OPTIONS = {
+  animation: 300,
+  draggable: `.${CLASS_NAME}__item`, // Specifies which items inside the element should be sortable
+  ghostClass: 'react-draggable-list__ghost', // Class name for the drop placeholder
+  chosenClass: 'react-draggable-list__chosen', // Class name for the chosen item
+  dragClass: 'react-draggable-list__drag' // Class name for the dragging item
+};
 
-export default class extends Component {
+export default class ReactDraggableList extends Component {
   static displayName = CLASS_NAME;
+  static version = '__VERSION__';
   static propTypes = {
+    /**
+     * The extended className for component.
+     */
     className: PropTypes.string,
-    handles: PropTypes.bool,
-    animation: PropTypes.number,
+    /**
+     * When sortable list changed.
+     */
     onChange: PropTypes.func,
-    itemKey: PropTypes.any,
+    /**
+     * The list data source.
+     */
     items: PropTypes.array,
-    sortableOptions: PropTypes.object
+    /**
+     * The list item template.
+     */
+    template: PropTypes.func,
+    /**
+     * The uniq row key.
+     */
+    rowKey: PropTypes.any.isRequired,
+    /**
+     * The core sortable component options (@sortable: https://github.com/SortableJS/Sortable).
+     */
+    options: PropTypes.object
   };
 
   static defaultProps = {
-    handles: false,
-    animation: 150,
     onChange: noop,
-    itemKey: 'id',
     items: [],
-    sortableOptions: {}
+    template: noop,
+    rowKey: 'id',
+    options: {}
   };
 
-  constructor(inProps) {
-    super(inProps);
-    this.state = {
-      items: inProps.items
-    };
-  }
+  template = ({ item, index }) => {
+    const { template, rowKey } = this.props;
+    return (
+      <div key={item[rowKey]} className={`${CLASS_NAME}__item`}>
+        {template({ item, index })}
+      </div>
+    );
+  };
 
-  componentWillReceiveProps(inProps) {
-    const { items } = inProps;
-    if (items !== this.state.items) {
-      this.setState({ items });
-    }
-  }
-
-  onUpdate = (inEvent) => {
+  handleUpdate = (inEvent) => {
     const { oldIndex, newIndex } = inEvent;
-    const { items, onChange, itemKey } = this.props;
+    const { items, onChange, rowKey } = this.props;
     const oldItem = items[oldIndex];
-    const newItem = items[newIndex];
     //up
     if (newIndex < oldIndex) {
       items.splice(oldIndex, 1);
@@ -57,66 +74,41 @@ export default class extends Component {
       items.splice(newIndex + 1, 0, oldItem);
       items.splice(oldIndex, 1);
     }
-
-    const value = items.map((item, index) => item[itemKey || index]);
-    objectAssign(inEvent.target, { value, items });
-
-    this.setState({ items }, () => {
-      onChange(inEvent);
-    });
+    const value = items.map((item) => item[rowKey]);
+    onChange({ target: { value } });
   };
 
-  sortableGroupDecorator = (componentBackingInstance) => {
-    // check if backing instance not null
-    if (componentBackingInstance) {
-      const { animation, itemKey, sortableOptions } = this.props;
-      // const ghostClass = ;
-      const options = objectAssign(
-        {
-          animation: animation,
-          dataIdAttr: itemKey,
-          draggable: '.react-draggable-list-item', // Specifies which items inside the element should be sortable
-          // group: "shared",
-          ghostClass: 'react-draggable-list-ghost', // Class name for the drop placeholder
-          chosenClass: 'react-draggable-list-chosen', // Class name for the chosen item
-          dragClass: 'react-draggable-list-drag', // Class name for the dragging item
-          onUpdate: this.onUpdate
-        },
-        sortableOptions
-      );
-      this._sortableIntance = Sortable.create(
-        componentBackingInstance,
-        options
-      );
-    }
+  handleRef = (inElement) => {
+    const { rowKey, options } = this.props;
+    const compoutedOptions = {
+      dataIdAttr: rowKey,
+      onUpdate: this.handleUpdate,
+      ...DEFAULT_SORTABLE_OPTIONS,
+      ...options
+    };
+
+    Sortable.create(inElement, compoutedOptions);
   };
 
   render() {
     const {
       className,
+      children,
       animation,
       items,
       template,
-      itemKey,
-      handles,
-      sortableOptions,
+      rowKey,
+      options,
       ...props
     } = this.props;
     return (
       <div
-        className={classNames('react-draggable-list', className)}
+        data-component={CLASS_NAME}
+        className={classNames(CLASS_NAME, className)}
         {...props}
-        ref={this.sortableGroupDecorator}>
-        {items.map((item, index) => (
-          <div
-            key={item[itemKey] || index}
-            className="react-draggable-list-item">
-            {handles && (
-              <span className="react-draggable-list-handles">&#9776;</span>
-            )}
-            {template(item, index)}
-          </div>
-        ))}
+        ref={this.handleRef}>
+        <ReactList virtual items={items} template={this.template} />
+        {children}
       </div>
     );
   }
