@@ -1,3 +1,4 @@
+import nxSwap from '@feizheng/next-swap';
 import noop from '@feizheng/noop';
 import ReactList from '@feizheng/react-list';
 import classNames from 'classnames';
@@ -64,16 +65,7 @@ export default class ReactDraggableList extends Component {
   handleUpdate = (inEvent) => {
     const { oldIndex, newIndex } = inEvent;
     const { items, onChange, rowKey } = this.props;
-    const oldItem = items[oldIndex];
-    //up
-    if (newIndex < oldIndex) {
-      items.splice(oldIndex, 1);
-      items.splice(newIndex, 0, oldItem);
-    } else {
-      //down:
-      items.splice(newIndex + 1, 0, oldItem);
-      items.splice(oldIndex, 1);
-    }
+    nxSwap(items, newIndex, oldIndex);
     const value = items.map((item) => item[rowKey]);
     onChange({ target: { value } });
   };
