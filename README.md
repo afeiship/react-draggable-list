@@ -24,7 +24,7 @@ npm update @feizheng/react-draggable-list
 | items     | array  | false    | []      | The list data source.                                                                    |
 | template  | func   | false    | noop    | The list item template.                                                                  |
 | rowKey    | any    | false    | 'id'    | The uniq row key.                                                                        |
-| options   | object | false    | {}      | The core sortable component options (@sortable: https://github.com/SortableJS/Sortable). |
+| options   | object | false    | -       | The core sortable component options (@sortable: https://github.com/SortableJS/Sortable). |
 
 
 ## usage
