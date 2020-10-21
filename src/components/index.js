@@ -79,6 +79,7 @@ export default class ReactDraggableList extends Component {
   };
 
   handleRef = (inElement) => {
+    if (!inElement) return;
     const { rowKey, options } = this.props;
     const compoutedOptions = {
       dataIdAttr: rowKey,
