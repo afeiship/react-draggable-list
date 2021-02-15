@@ -1,5 +1,5 @@
-import noop from '@feizheng/noop';
-import ReactList from '@feizheng/react-list';
+import noop from '@jswork/noop';
+import ReactList from '@jswork/react-list';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';

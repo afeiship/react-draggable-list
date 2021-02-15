@@ -1,3 +1,4 @@
+import ReactDemokit from '@jswork/react-demokit';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactDraggableList from '../src/main';
@@ -73,12 +74,14 @@ class App extends React.Component {
 
   onChange = (e) => {
     const { value } = e.target;
-    console.log('value: ',value);
+    console.log('value: ', value);
   };
 
   render() {
     return (
-      <div className="app-container">
+      <ReactDemokit
+        className="p-3 app-container"
+        url="https://github.com/afeiship/react-draggable-list">
         <ReactDraggableList
           className="dg1"
           onChange={this.onChange}
@@ -94,7 +97,7 @@ class App extends React.Component {
           rowKey="title"
           items={this.state.items2}
         />
-      </div>
+      </ReactDemokit>
     );
   }
 }
