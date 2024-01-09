@@ -85,7 +85,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     const { newIndex, oldIndex } = inEvent;
     const { cacheKey } = inEvent.from.dataset;
     const cachedItems = ReactDraggableList.cachedItems[cacheKey];
-    const { items, onChange, onDrop, rowKey } = this.props;
+    const { name, items, onChange, onDrop, rowKey } = this.props;
     const newItem = cachedItems[oldIndex];
     items.splice(newIndex, 0, newItem);
     const value = items.map((item) => item[rowKey]);
