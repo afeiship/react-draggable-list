@@ -21,6 +21,7 @@ export interface ReactDraggableListProps extends Omit<React.HTMLAttributes<any>,
   template: (args: { item: any; index: number }) => React.ReactNode;
   className?: string;
   onChange?: (inEvent: { target: { value: any[] } }) => void;
+  onDrop?: (inEvent: any) => void;
   rowKey?: any;
   options?: any;
 }
@@ -29,6 +30,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
   static displayName = CLASS_NAME;
   static defaultProps = {
     onChange: noop,
+    onDrop: noop,
     items: [],
     template: noop,
     rowKey: 'id',
@@ -62,7 +64,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
 
   handleUpdate = (inEvent) => {
     const { oldIndex, newIndex } = inEvent;
-    const { items, onChange, rowKey } = this.props;
+    const { items, onChange, onDrop, rowKey } = this.props;
     const oldItem = items[oldIndex];
     //up
     if (newIndex < oldIndex) {
@@ -75,17 +77,19 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     }
     const value = items.map((item) => item[rowKey]);
     onChange!({ target: { value } });
+    onDrop!({ target: { value: oldItem[rowKey] } });
   };
 
   handleAdd = (inEvent) => {
     const { newIndex, oldIndex } = inEvent;
     const { cacheKey } = inEvent.from.dataset;
     const cachedItems = ReactDraggableList.cachedItems[cacheKey];
-    const { items, onChange, rowKey } = this.props;
+    const { items, onChange, onDrop, rowKey } = this.props;
     const newItem = cachedItems[oldIndex];
     items.splice(newIndex, 0, newItem);
     const value = items.map((item) => item[rowKey]);
     onChange!({ target: { value } });
+    onDrop!({ target: { value: newItem[rowKey] } });
   };
 
   handleRemove = (inEvent) => {
@@ -111,7 +115,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
   };
 
   render() {
-    const { className, children, items, template, rowKey, options, ...props } = this.props;
+    const { className, children, items, template, rowKey, options, onDrop, ...props } = this.props;
     return (
       // @ts-ignore
       <div

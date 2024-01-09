@@ -136,6 +136,9 @@ function App() {
         rowKey="id"
         items={sharedItems1}
         options={{ group: 'shared' }}
+        onDrop={(e) => {
+          console.log('onDrop: ', e.target.value);
+        }}
       />
 
       <ReactDraggableList
@@ -145,6 +148,9 @@ function App() {
         rowKey="id"
         items={sharedItems2}
         options={{ group: 'shared' }}
+        onDrop={(e) => {
+          console.log('onDrop: ', e.target.value);
+        }}
       />
       <hr />
       <h2>不同的group</h2>
