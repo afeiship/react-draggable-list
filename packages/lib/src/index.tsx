@@ -45,6 +45,12 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     ReactDraggableList.cachedItems[this.cacheKey] = items;
   }
 
+  shouldComponentUpdate(nextProps: Readonly<ReactDraggableListProps>): boolean {
+    const { items } = nextProps;
+    ReactDraggableList.cachedItems[this.cacheKey] = items;
+    return true;
+  }
+
   template = ({ item, index }) => {
     const { template, rowKey } = this.props;
     return (
