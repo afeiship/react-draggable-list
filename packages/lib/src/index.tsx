@@ -17,6 +17,7 @@ const randomKey = () => Math.random().toString(36).substr(2);
 
 // @ts-ignore
 export interface ReactDraggableListProps extends Omit<React.HTMLAttributes<any>, 'onChange'> {
+  name?: string;
   items: any[];
   template: (args: { item: any; index: number }) => React.ReactNode;
   className?: string;
@@ -64,7 +65,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
 
   handleUpdate = (inEvent) => {
     const { oldIndex, newIndex } = inEvent;
-    const { items, onChange, onDrop, rowKey } = this.props;
+    const { name, items, onChange, onDrop, rowKey } = this.props;
     const oldItem = items[oldIndex];
     //up
     if (newIndex < oldIndex) {
@@ -77,7 +78,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     }
     const value = items.map((item) => item[rowKey]);
     onChange!({ target: { value } });
-    onDrop!({ target: { value: oldItem[rowKey] } });
+    onDrop!({ target: { value: oldItem[rowKey], name } });
   };
 
   handleAdd = (inEvent) => {
@@ -89,7 +90,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     items.splice(newIndex, 0, newItem);
     const value = items.map((item) => item[rowKey]);
     onChange!({ target: { value } });
-    onDrop!({ target: { value: newItem[rowKey] } });
+    onDrop!({ target: { value: newItem[rowKey], name } });
   };
 
   handleRemove = (inEvent) => {
