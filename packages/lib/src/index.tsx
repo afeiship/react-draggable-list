@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import React, { Component } from 'react';
 import Sortable from 'sortablejs';
 
+// @thankto: https://github.com/SortableJS/react-sortablejs/issues/55
+
 const CLASS_NAME = 'react-draggable-list';
 const DEFAULT_SORTABLE_OPTIONS = {
   animation: 300,
@@ -11,6 +13,11 @@ const DEFAULT_SORTABLE_OPTIONS = {
   ghostClass: 'react-draggable-list__ghost', // Class name for the drop placeholder
   chosenClass: 'react-draggable-list__chosen', // Class name for the chosen item
   dragClass: 'react-draggable-list__drag', // Class name for the dragging item
+};
+
+const store: any = {
+  nextSibling: null,
+  activeComponent: null,
 };
 
 const randomKey = () => Math.random().toString(36).substr(2);
@@ -22,7 +29,7 @@ export interface ReactDraggableListProps extends Omit<React.HTMLAttributes<any>,
   template: (args: { item: any; index: number }) => React.ReactNode;
   className?: string;
   onChange?: (inEvent: { target: { value: any[] } }) => void;
-  onDrop?: (inEvent: any) => void;
+  onChooseDrop?: (inEvent: any) => void;
   rowKey?: any;
   options?: any;
 }
@@ -31,7 +38,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
   static displayName = CLASS_NAME;
   static defaultProps = {
     onChange: noop,
-    onDrop: noop,
+    onChooseDrop: noop,
     items: [],
     template: noop,
     rowKey: 'id',
@@ -64,8 +71,9 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
   };
 
   handleUpdate = (inEvent) => {
+    this.fixDomNodeError(inEvent);
     const { oldIndex, newIndex } = inEvent;
-    const { name, items, onChange, onDrop, rowKey } = this.props;
+    const { name, items, onChange, onChooseDrop, rowKey } = this.props;
     const oldItem = items[oldIndex];
     //up
     if (newIndex < oldIndex) {
@@ -78,19 +86,20 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     }
     const value = items.map((item) => item[rowKey]);
     onChange!({ target: { value } });
-    onDrop!({ target: { value: oldItem[rowKey], name } });
+    onChooseDrop!({ target: { value: oldItem[rowKey], name } });
   };
 
   handleAdd = (inEvent) => {
+    this.fixDomNodeError(inEvent);
     const { newIndex, oldIndex } = inEvent;
     const { cacheKey } = inEvent.from.dataset;
     const cachedItems = ReactDraggableList.cachedItems[cacheKey];
-    const { name, items, onChange, onDrop, rowKey } = this.props;
+    const { name, items, onChange, onChooseDrop, rowKey } = this.props;
     const newItem = cachedItems[oldIndex];
     items.splice(newIndex, 0, newItem);
     const value = items.map((item) => item[rowKey]);
     onChange!({ target: { value } });
-    onDrop!({ target: { value: newItem[rowKey], name } });
+    onChooseDrop!({ target: { value: newItem[rowKey], name } });
   };
 
   handleRemove = (inEvent) => {
@@ -101,6 +110,11 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     onChange!({ target: { value } });
   };
 
+  handleChoose = (inEvent) => {
+    store.nextSibling = inEvent.item.nextElementSibling;
+    store.activeComponent = this;
+  };
+
   handleRef = (inElement) => {
     if (!inElement) return;
     const { rowKey, options } = this.props;
@@ -109,14 +123,22 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
       onUpdate: this.handleUpdate,
       onAdd: this.handleAdd,
       onRemove: this.handleRemove,
+      onChoose: this.handleChoose,
       ...options,
     };
 
     Sortable.create(inElement, compoutedOptions);
   };
 
+  fixDomNodeError = (inEvent) => {
+    const referenceNode =
+      store.nextSibling && store.nextSibling.parentNode !== null ? store.nextSibling : null;
+    inEvent.from.insertBefore(inEvent.item, referenceNode);
+  };
+
   render() {
-    const { className, children, items, template, rowKey, options, onDrop, ...props } = this.props;
+    const { className, children, items, template, rowKey, options, onChooseDrop, ...props } =
+      this.props;
     return (
       // @ts-ignore
       <div
