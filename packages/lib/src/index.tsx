@@ -13,6 +13,8 @@ const DEFAULT_SORTABLE_OPTIONS = {
   dragClass: 'react-draggable-list__drag', // Class name for the dragging item
 };
 
+const randomKey = () => Math.random().toString(36).substr(2);
+
 // @ts-ignore
 export interface ReactDraggableListProps extends Omit<React.HTMLAttributes<any>, 'onChange'> {
   items: any[];
@@ -32,6 +34,16 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     rowKey: 'id',
     options: DEFAULT_SORTABLE_OPTIONS,
   };
+
+  static cachedItems = {};
+  private cacheKey: string;
+
+  constructor(inProps) {
+    super(inProps);
+    const { items } = inProps;
+    this.cacheKey = randomKey();
+    ReactDraggableList.cachedItems[this.cacheKey] = items;
+  }
 
   template = ({ item, index }) => {
     const { template, rowKey } = this.props;
@@ -59,12 +71,33 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     onChange!({ target: { value } });
   };
 
+  handleAdd = (inEvent) => {
+    const { newIndex, oldIndex } = inEvent;
+    const { cacheKey } = inEvent.from.dataset;
+    const cachedItems = ReactDraggableList.cachedItems[cacheKey];
+    const { items, onChange, rowKey } = this.props;
+    const newItem = cachedItems[oldIndex];
+    items.splice(newIndex, 0, newItem);
+    const value = items.map((item) => item[rowKey]);
+    onChange!({ target: { value } });
+  };
+
+  handleRemove = (inEvent) => {
+    const { oldIndex } = inEvent;
+    const { items, onChange, rowKey } = this.props;
+    items.splice(oldIndex, 1);
+    const value = items.map((item) => item[rowKey]);
+    onChange!({ target: { value } });
+  };
+
   handleRef = (inElement) => {
     if (!inElement) return;
     const { rowKey, options } = this.props;
     const compoutedOptions = {
       dataIdAttr: rowKey,
       onUpdate: this.handleUpdate,
+      onAdd: this.handleAdd,
+      onRemove: this.handleRemove,
       ...options,
     };
 
@@ -77,6 +110,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
       // @ts-ignore
       <div
         data-component={CLASS_NAME}
+        data-cache-key={this.cacheKey}
         className={classNames(CLASS_NAME, className)}
         {...props}
         ref={this.handleRef}>

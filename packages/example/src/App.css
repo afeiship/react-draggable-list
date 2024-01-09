@@ -62,3 +62,23 @@
     margin-bottom: 10px;
   }
 }
+
+.dg3,
+.dg4 {
+  border: 1px solid red;
+  background-color: lightcyan;
+  > div {
+    border: 1px solid saddlebrown;
+    padding: 2px 10px;
+    margin-bottom: 10px;
+  }
+}
+
+.dg4 {
+  .react-draggable-list__item {
+    border: 1px solid saddlebrown;
+    padding: 2px 10px;
+    margin-bottom: 10px;
+    background-color: lightgreen;
+  }
+}
