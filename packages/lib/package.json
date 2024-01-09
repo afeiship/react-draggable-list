@@ -34,15 +34,9 @@
     "registry": "https://registry.npmjs.org"
   },
   "dependencies": {
-    "@jswork/react-list": "^1.2.1",
+    "@jswork/react-list": "^1.2.2",
     "@types/sortablejs": "^1.15.7",
     "sortablejs": "^1.15.1"
   },
-  "keywords": [
-    "react",
-    "draggable",
-    "sort",
-    "drag",
-    "drag-and-drop"
-  ]
+  "keywords": ["react", "draggable", "sort", "drag", "drag-and-drop"]
 }
