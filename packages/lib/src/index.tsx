@@ -141,7 +141,6 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     return (
       <ReactSortable
         id={this.cacheKey}
-        group={name}
         className={classNames(CLASS_NAME, className)}
         list={stateItems}
         setList={noop}
