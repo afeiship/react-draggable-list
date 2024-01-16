@@ -17,7 +17,6 @@ const DEFAULT_SORTABLE_OPTIONS = {
 
 const randomKey = () => Math.random().toString(36).substr(2);
 
-
 // @ts-ignore
 export interface ReactDraggableListProps extends Omit<React.HTMLAttributes<any>, 'onChange'> {
   name?: string;
@@ -136,8 +135,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     } = this.props;
 
     const { stateItems } = this.state;
-
-    if (stateItems.length === 0 && emptySlot) return emptySlot;
+    const isEmptyState = stateItems.length === 0 && emptySlot;
 
     return (
       <ReactSortable
@@ -152,8 +150,11 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
         {...options}
         {...props}
       >
-        {stateItems.length > 0 && <ReactList items={stateItems} template={this.template} />}
+        <>
+          {isEmptyState && emptySlot}
+          {stateItems.length > 0 && <ReactList items={stateItems} template={this.template} />}
+        </>
       </ReactSortable>
-    );
+    )
   }
 }

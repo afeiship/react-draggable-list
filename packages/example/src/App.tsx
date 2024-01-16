@@ -68,6 +68,10 @@ const items2 = [
 ];
 
 const sharedItems1 = [
+
+];
+
+const sharedItems2 = [
   {
     id: 1,
     title: '猫妖传1',
@@ -92,9 +96,6 @@ const sharedItems1 = [
     img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
     description: '讲述大唐传奇的奇幻剧',
   },
-];
-
-const sharedItems2 = [
   {
     id: 5,
     title: '猫妖传5',
@@ -133,6 +134,7 @@ function App() {
         name="list1"
         className="dg3"
         onChange={onChange}
+        emptySlot={<div>empty1</div>}
         template={({ item }) => <div key={item.id}>{item.title}</div>}
         rowKey="id"
         items={sharedItems1}
@@ -150,6 +152,7 @@ function App() {
         rowKey="id"
         items={sharedItems2}
         options={{ group: 'shared' }}
+        emptySlot={() => <div>empty2</div>}
         onChooseDrop={(e) => {
           console.log('onDrop: ', e.target);
         }}
