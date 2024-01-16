@@ -1,7 +1,7 @@
 {
   "name": "react-draggable-list",
   "homepage": "https://js.work",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple draggable list component.",
   "private": true,
   "workspaces": [
