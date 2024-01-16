@@ -35,7 +35,7 @@ interface ReactDraggableListState {
   stateItems: any[];
 }
 
-export default class ReactDraggableList extends Component<ReactDraggableListProps> {
+export default class ReactDraggableList extends Component<ReactDraggableListProps, ReactDraggableListState> {
   static displayName = CLASS_NAME;
   static defaultProps = {
     onChange: noop,
