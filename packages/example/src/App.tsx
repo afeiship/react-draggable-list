@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import ReactDraggableList from '../../lib/src';
 import './App.css';
 
@@ -67,9 +68,6 @@ const items2 = [
   },
 ];
 
-const sharedItems1 = [
-
-];
 
 const sharedItems2 = [
   {
@@ -127,32 +125,46 @@ function App() {
     console.log('on change value: ', e.target.value);
   };
 
+  const [sharedItems1, setSharedItems1] = useState([]);
+
+
+  useEffect(() => {
+    setTimeout(() => {
+      setSharedItems1([
+        { id: 10, title: '猫妖传10' },
+        { id: 11, title: '猫妖传11' },
+        { id: 12, title: '猫妖传12' },
+        { id: 13, title: '猫妖传13' },
+        { id: 14, title: '猫妖传14' },
+        { id: 15, title: '猫妖传15' },
+        { id: 16, title: '猫妖传16' },
+        { id: 17, title: '猫妖传17' },
+      ]);
+    }, 1000);
+  }, []);
+
   return (
     <>
       <h1>react-draggable-list same group</h1>
       <ReactDraggableList
-        name="list1"
+        name="shared"
         className="dg3"
-        onChange={onChange}
         emptySlot={<div>empty1</div>}
         template={({ item }) => <div key={item.id}>{item.title}</div>}
-        rowKey="id"
         items={sharedItems1}
-        options={{ group: 'shared' }}
+        onChange={onChange}
         onChooseDrop={(e) => {
           console.log('onDrop: ', e.target);
         }}
       />
 
       <ReactDraggableList
-        name="list2"
+        name="shared"
         className="dg4"
-        onChange={onChange}
         template={({ item }) => <div key={item.id}>{item.title}</div>}
-        rowKey="id"
         items={sharedItems2}
-        options={{ group: 'shared' }}
         emptySlot={() => <div>empty2</div>}
+        onChange={onChange}
         onChooseDrop={(e) => {
           console.log('onDrop: ', e.target);
         }}
