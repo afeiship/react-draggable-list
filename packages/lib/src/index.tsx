@@ -2,7 +2,6 @@ import noop from '@jswork/noop';
 import ReactList from '@jswork/react-list';
 import classNames from 'classnames';
 import React, { Component } from 'react';
-import Sortable from 'sortablejs';
 import { ReactSortable } from 'react-sortablejs'
 
 // @thankto: https://github.com/SortableJS/react-sortablejs/issues/55
@@ -30,6 +29,10 @@ export interface ReactDraggableListProps extends Omit<React.HTMLAttributes<any>,
   onChooseDrop?: (inEvent: any) => void;
   rowKey?: any;
   options?: any;
+}
+
+interface ReactDraggableListState {
+  stateItems: any[];
 }
 
 export default class ReactDraggableList extends Component<ReactDraggableListProps> {
@@ -139,7 +142,9 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
         onUpdate={this.handleUpdate}
         onAdd={this.handleAdd}
         onRemove={this.handleRemove}
-        {...options}>
+        {...options}
+        {...props}
+      >
         {stateItems.length > 0 && <ReactList items={stateItems} template={this.template} />}
       </ReactSortable>
     );
