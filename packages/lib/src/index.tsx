@@ -118,7 +118,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     const { onChange, rowKey } = this.props;
     const value = inItems.map((item) => item[rowKey]);
     this.setState({ stateItems: inItems.slice(0) });
-    if (value) onChange!({ target: { value } });
+    onChange!({ target: { value } });
   }
 
   render() {
