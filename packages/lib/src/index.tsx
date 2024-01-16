@@ -61,6 +61,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     const { items } = nextProps;
     const { stateItems } = this.state;
     if (!fde(items, stateItems)) {
+      ReactDraggableList.cachedItems[this.cacheKey];
       this.execChange(items);
     }
     return true;
