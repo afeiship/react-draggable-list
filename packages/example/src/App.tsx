@@ -132,7 +132,7 @@ function App() {
       <ReactDraggableList
         className="dg3"
         onChange={onChange}
-        template={({ item }) => <div>{item.title}</div>}
+        template={({ item }) => <div key={item.id}>{item.title}</div>}
         rowKey="id"
         items={sharedItems1}
         options={{ group: 'shared' }}
@@ -144,7 +144,7 @@ function App() {
       <ReactDraggableList
         className="dg4"
         onChange={onChange}
-        template={({ item }) => <div>{item.title}</div>}
+        template={({ item }) => <div key={item.id}>{item.title}</div>}
         rowKey="id"
         items={sharedItems2}
         options={{ group: 'shared' }}
@@ -154,10 +154,10 @@ function App() {
       />
       <hr />
       <h2>不同的group</h2>
-      <ReactDraggableList
+      {/* <ReactDraggableList
         className="dg1"
         onChange={onChange}
-        template={({ item }) => <div>{item.title}</div>}
+        template={({ item }) => <div key={item.id}>{item.title}</div>}
         rowKey="title"
         items={items1}
       />
@@ -165,10 +165,10 @@ function App() {
       <ReactDraggableList
         className="dg2"
         onChange={onChange}
-        template={({ item }) => <div>{item.title}</div>}
+        template={({ item }) => <div key={item.id}>{item.title}</div>}
         rowKey="title"
         items={items2}
-      />
+      /> */}
     </>
   );
 }
