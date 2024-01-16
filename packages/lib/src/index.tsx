@@ -81,7 +81,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     const cacheKey = from.id;
     const cachedItems = ReactDraggableList.cachedItems[cacheKey];
     const currentCacheItems = ReactDraggableList.cachedItems[this.cacheKey];
-    const { name, onChange, onChooseDrop, rowKey } = this.props;
+    const { name, onChooseDrop, rowKey } = this.props;
     const newItem = cachedItems[oldIndex];
     currentCacheItems.splice(newIndex, 0, newItem);
     this.execChange(currentCacheItems);
@@ -92,15 +92,13 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     const { oldIndex, from } = inEvent;
     const cacheKey = from.id;
     const cacheItems = ReactDraggableList.cachedItems[cacheKey];
-    const { onChange, rowKey } = this.props;
     cacheItems.splice(oldIndex, 1);
-    const value = cacheItems.map((item) => item[rowKey]);
     this.execChange(cacheItems);
   };
 
   handleUpdate = (inEvent) => {
     const { oldIndex, newIndex } = inEvent;
-    const { name, onChange, onChooseDrop, rowKey } = this.props;
+    const { name, onChooseDrop, rowKey } = this.props;
     const { stateItems } = this.state;
     const oldItem = stateItems[oldIndex];
     //up
