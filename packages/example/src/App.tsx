@@ -130,26 +130,28 @@ function App() {
     <>
       <h1>react-draggable-list same group</h1>
       <ReactDraggableList
+        name="list1"
         className="dg3"
         onChange={onChange}
         template={({ item }) => <div key={item.id}>{item.title}</div>}
         rowKey="id"
         items={sharedItems1}
         options={{ group: 'shared' }}
-        onDrop={(e) => {
-          console.log('onDrop: ', e.target.value);
+        onChooseDrop={(e) => {
+          console.log('onDrop: ', e.target);
         }}
       />
 
       <ReactDraggableList
+        name="list2"
         className="dg4"
         onChange={onChange}
         template={({ item }) => <div key={item.id}>{item.title}</div>}
         rowKey="id"
         items={sharedItems2}
         options={{ group: 'shared' }}
-        onDrop={(e) => {
-          console.log('onDrop: ', e.target.value);
+        onChooseDrop={(e) => {
+          console.log('onDrop: ', e.target);
         }}
       />
       <hr />

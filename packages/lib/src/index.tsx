@@ -3,7 +3,7 @@ import ReactList from '@jswork/react-list';
 import classNames from 'classnames';
 import React, { Component } from 'react';
 import { ReactSortable } from 'react-sortablejs'
-
+import fde from 'fast-deep-equal';
 // @thankto: https://github.com/SortableJS/react-sortablejs/issues/55
 
 const CLASS_NAME = 'react-draggable-list';
@@ -58,6 +58,15 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     this.state = { stateItems: items };
   }
 
+  shouldComponentUpdate(nextProps: Readonly<ReactDraggableListProps>): boolean {
+    const { items } = nextProps;
+    const { stateItems } = this.state;
+    if (!fde(items, stateItems)) {
+      this.execChange(items);
+    }
+    return true;
+  }
+
   template = ({ item, index }) => {
     const { template, rowKey } = this.props;
     return (
@@ -75,9 +84,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     const { name, onChange, onChooseDrop, rowKey } = this.props;
     const newItem = cachedItems[oldIndex];
     currentCacheItems.splice(newIndex, 0, newItem);
-    const value = currentCacheItems.map((item) => item[rowKey]);
     this.execChange(currentCacheItems);
-    onChange!({ target: { value } });
     onChooseDrop!({ target: { value: newItem[rowKey], name } });
   };
 
@@ -89,7 +96,6 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     cacheItems.splice(oldIndex, 1);
     const value = cacheItems.map((item) => item[rowKey]);
     this.execChange(cacheItems);
-    onChange!({ target: { value } });
   };
 
   handleUpdate = (inEvent) => {
@@ -106,18 +112,20 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
       stateItems.splice(newIndex + 1, 0, oldItem);
       stateItems.splice(oldIndex, 1);
     }
-    const value = stateItems.map((item) => item[rowKey]);
     this.execChange(stateItems);
-    onChange!({ target: { value } });
     onChooseDrop!({ target: { value: oldItem[rowKey], name } });
   };
 
   execChange = (inItems) => {
+    const { onChange, rowKey } = this.props;
+    const value = inItems.map((item) => item[rowKey]);
     this.setState({ stateItems: inItems.slice(0) });
+    if (value) onChange!({ target: { value } });
   }
 
   render() {
     const {
+      name,
       className,
       children,
       template,
@@ -125,6 +133,7 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
       options,
       onChooseDrop,
       emptySlot,
+      onChange,
       ...props
     } = this.props;
 
