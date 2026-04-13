@@ -68,9 +68,9 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
   }
 
   template = ({ item, index }) => {
-    const { template, rowKey } = this.props;
+    const { template } = this.props;
     return (
-      <div key={item[rowKey]} className={`${CLASS_NAME}__item`}>
+      <div className={`${CLASS_NAME}__item`}>
         {template({ item, index })}
       </div>
     );
@@ -136,7 +136,6 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
     } = this.props;
 
     const { stateItems } = this.state;
-    const isEmptyState = stateItems.length === 0 && emptySlot;
 
     return (
       <ReactSortable
@@ -150,10 +149,14 @@ export default class ReactDraggableList extends Component<ReactDraggableListProp
         {...options}
         {...props}
       >
-        <>
-          {isEmptyState && emptySlot}
-          {stateItems.length > 0 && <ReactList items={stateItems} template={this.template} />}
-        </>
+        <ReactList
+          data={stateItems}
+          keyExtractor={rowKey}
+          slots={{
+            item: this.template,
+            ...(emptySlot && { empty: emptySlot })
+          }}
+        />
       </ReactSortable>
     )
   }
