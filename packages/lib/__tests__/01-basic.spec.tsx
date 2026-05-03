@@ -1,29 +1,47 @@
-/**
- * 基础渲染测试
- * 验证 ReactDraggableList 组件的基本渲染行为，包括：
- * - 默认 className 是否正确应用
- * - 自定义 className 是否能正确合并
- * - children 内容是否正常渲染
- */
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import ReactDraggableList from '../src';
+import { DraggableList } from '../src';
 
-describe('ReactDraggableList', () => {
-  it('should render with default className', () => {
-    render(<ReactDraggableList>hello</ReactDraggableList>);
-    const el = screen.getByText('hello');
-    expect(el).toBeInTheDocument();
-    expect(el.closest('[data-component="react-draggable-list"]')).toBeInTheDocument();
+const ITEMS = ['Alpha', 'Beta', 'Gamma'];
+
+describe('DraggableList', () => {
+  it('should render all items', () => {
+    render(
+      <DraggableList
+        data={ITEMS}
+        slots={{
+          item: ({ item }) => <div data-testid="item">{item}</div>,
+        }}
+      />,
+    );
+    expect(screen.getAllByTestId('item')).toHaveLength(3);
+    expect(screen.getByText('Alpha')).toBeInTheDocument();
+    expect(screen.getByText('Beta')).toBeInTheDocument();
+    expect(screen.getByText('Gamma')).toBeInTheDocument();
   });
 
-  it('should merge custom className', () => {
-    const { container } = render(<ReactDraggableList className="custom-class">test</ReactDraggableList>);
-    expect(container.firstChild).toHaveClass('react-draggable-list', 'custom-class');
+  it('should render with a custom container slot', () => {
+    const { container } = render(
+      <DraggableList
+        data={ITEMS}
+        slots={{
+          item: ({ item }) => <span>{item}</span>,
+          container: ({ children }) => <section data-testid="custom-container">{children}</section>,
+        }}
+      />,
+    );
+    expect(screen.getByTestId('custom-container')).toBeInTheDocument();
   });
 
-  it('should render children', () => {
-    render(<ReactDraggableList>child content</ReactDraggableList>);
-    expect(screen.getByText('child content')).toBeInTheDocument();
+  it('should render empty list when data is empty', () => {
+    const { container } = render(
+      <DraggableList
+        data={[]}
+        slots={{
+          item: ({ item }) => <div>{item}</div>,
+        }}
+      />,
+    );
+    expect(container.querySelector('div')).toBeInTheDocument();
   });
 });

@@ -2,21 +2,16 @@ import React from "react";
 import type { SpringValue } from "@react-spring/web";
 import type { Slot, ItemContext, ReactListProps } from "@jswork/react-list";
 
-// 直接复用 react-list 的 Slot 和 ItemContext 类型
 export type { Slot, ItemContext };
 
 /**
- * 每个 item 的渲染上下文（扩展自 ItemContext）
- *
- * 在 react-list 的 { item, index, data } 基础上增加了拖拽相关字段：
- * - `dragProps` — 需要展开到拖拽元素上的手势绑定
- * - `style` — 需要展开到元素上的动画样式（SpringValue，需 animated 组件）
- * - `isDragging` — 当前 item 是否正在被拖拽
+ * Render context for each draggable item (extends ItemContext from react-list).
+ * Adds drag-specific fields on top of the base { item, index, data }.
  */
-export interface DragItemContext<T> extends ItemContext<T> {
-  /** 需要展开到拖拽元素上：{...dragProps} */
+export interface DraggableItemContext<T> extends ItemContext<T> {
+  /** Spread onto the drag element: {...dragProps} */
   dragProps: Record<string, any>;
-  /** 需要展开到元素上的动画样式（SpringValue 类型，需配合 animated 组件使用） */
+  /** Animated styles (SpringValue) — must be used with an animated component */
   style: {
     zIndex: SpringValue<number>;
     y: SpringValue<number>;
@@ -24,66 +19,58 @@ export interface DragItemContext<T> extends ItemContext<T> {
     shadow: SpringValue<number>;
     height: number;
   };
-  /** 当前 item 是否正在被拖拽 */
+  /** Whether this item is currently being dragged */
   isDragging: boolean;
-  /** 每个 item 的高度（px），方便消费者设置元素高度 */
+  /** Item height in px, convenient for setting element height */
   itemHeight: number;
-  /** item 之间的间距（px） */
+  /** Gap between items in px */
   itemGap: number;
 }
 
-/**
- * 容器的渲染上下文
- */
-export interface DragContainerContext {
-  /** 容器的子元素 */
+/** Render context for the list container */
+export interface DraggableContainerContext {
   children: React.ReactNode;
-  /** 容器需要设置的样式（主要是高度） */
   style: React.CSSProperties;
 }
 
-/**
- * useDragList hook 的参数
- */
-export interface UseDragListOptions<T> {
-  /** 数据数组 */
+/** Options for the useDraggableList hook */
+export interface UseDraggableListOptions<T> {
+  /** Data array */
   data: T[];
-  /** 每个 item 的高度（px），默认 70 */
+  /** Item height in px (default 70) */
   itemHeight?: number;
-  /** item 之间的间距（px），默认 8 */
+  /** Gap between items in px (default 8) */
   itemGap?: number;
-  /** 拖拽排序完成后的回调，参数为排序后的新数组 */
+  /** Callback fired with the reordered array after a drag ends */
   onChange?: (newOrder: T[]) => void;
 }
 
-/**
- * useDragList hook 的返回值
- */
-export interface UseDragListReturn<T> {
-  /** 排序后的数据数组 */
+/** Return value of the useDraggableList hook */
+export interface UseDraggableListReturn<T> {
+  /** Reordered data array */
   orderedData: T[];
-  /** 容器样式（主要是高度） */
+  /** Container style (mainly height) */
   containerStyle: React.CSSProperties;
-  /** 渲染每个 item 需要的上下文数组 */
-  items: DragItemContext<T>[];
+  /** Per-item render contexts */
+  items: DraggableItemContext<T>[];
 }
 
 /**
- * DragList 组件的 Props
- * 扩展自 ReactListProps（复用 data、keyExtractor、slots.empty）
+ * Props for the DraggableList component.
+ * Extends ReactListProps (reuses data, keyExtractor, slots.empty).
  */
-export interface DragListProps<T> extends Omit<ReactListProps<T>, "slots"> {
-  /** 每个 item 的高度（px），默认 70 */
+export interface DraggableListProps<T> extends Omit<ReactListProps<T>, "slots"> {
+  /** Item height in px (default 70) */
   itemHeight?: number;
-  /** item 之间的间距（px），默认 8 */
+  /** Gap between items in px (default 8) */
   itemGap?: number;
-  /** 拖拽排序完成后的回调 */
+  /** Callback fired with the reordered array after a drag ends */
   onChange?: (newOrder: T[]) => void;
-  /** Slot 配置（扩展自 react-list，item slot 额外接收拖拽相关字段） */
+  /** Slot configuration (extends react-list slots with drag fields) */
   slots: {
-    /** 必填：渲染每个 item，接收 DragItemContext<T> */
-    item: Slot<DragItemContext<T>>;
-    /** 可选：渲染容器 */
-    container?: Slot<DragContainerContext>;
+    /** Required: render each item, receives DraggableItemContext<T> */
+    item: Slot<DraggableItemContext<T>>;
+    /** Optional: render the container */
+    container?: Slot<DraggableContainerContext>;
   };
 }

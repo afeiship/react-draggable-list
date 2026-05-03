@@ -2,4 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Your custom CSS here */
+body {
+  margin: 0;
+  background: #f5f5f5;
+  -webkit-font-smoothing: antialiased;
+}

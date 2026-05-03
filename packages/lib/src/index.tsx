@@ -1,14 +1,14 @@
-export { DragList } from "./drag-list";
-export { useDragList } from "./use-drag-list";
+export {DraggableList} from "./draggable-list";
+export {useDraggableList} from "./use-draggable-list";
 export type {
-  DragListProps,
-  DragItemContext,
-  DragContainerContext,
+  DraggableListProps,
+  DraggableItemContext,
+  DraggableContainerContext,
   Slot,
-  UseDragListOptions,
-  UseDragListReturn,
+  UseDraggableListOptions,
+  UseDraggableListReturn,
 } from "./types";
-export { renderSlot, isSlotConfig, clamp, swap } from "./utils";
 
-import { DragList } from "./drag-list";
-export default DragList;
+import {DraggableList} from "./draggable-list";
+
+export default DraggableList;
