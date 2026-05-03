@@ -26,6 +26,7 @@
     "@types/react": "^18.2.28",
     "@types/react-dom": "^18.2.13",
     "@vitejs/plugin-react": "^6.0.1",
+    "@jswork/react-list": "^2.0.15",
     "autoprefixer": "^10.4.16",
     "classnames": "^2.5.1",
     "cssnano": "^6.0.1",
@@ -39,13 +40,11 @@
   "peerDependencies": {
     "classnames": "*",
     "react": "*",
-    "react-dom": "*"
+    "react-dom": "*",
+    "@jswork/react-list": "*"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
-  },
-  "dependencies": {
-    "@jswork/react-list": "*"
   }
 }
