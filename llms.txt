@@ -1,0 +1,255 @@
+# @jswork/react-draggable-list
+
+> A headless, slot-based draggable list component for React with spring animations and gesture-driven reordering.
+
+## Overview
+
+This library provides a drag-sortable list with zero UI opinions. It handles all drag gesture detection, spring animations, and reorder logic — you control the rendering through slots.
+
+**Key features:**
+- Headless component pattern — bring your own UI via slots
+- `DraggableList` component for declarative usage
+- `useDraggableList` hook for full control
+- Smooth spring animations via `@react-spring/web`
+- Gesture-driven via `@use-gesture/react`
+- Built on `@jswork/react-list` for list rendering
+- Fully typed with TypeScript generics
+
+## Installation
+
+```bash
+npm install @jswork/react-draggable-list
+# or
+yarn add @jswork/react-draggable-list
+# or
+pnpm add @jswork/react-draggable-list
+```
+
+Peer dependencies: `react`, `react-dom`, `classnames`
+
+## Exports
+
+```ts
+// Component
+export { DraggableList }          // Main component (also default export)
+
+// Hook
+export { useDraggableList }       // Headless hook for custom implementations
+
+// Types
+export type { DraggableListProps }
+export type { DraggableItemContext }
+export type { DraggableContainerContext }
+export type { UseDraggableListOptions }
+export type { UseDraggableListReturn }
+export type { Slot }
+```
+
+Source: `./packages/lib/src/index.tsx`
+Tests: `./packages/lib/__tests__/`
+
+---
+
+## Component: `<DraggableList>`
+
+The main declarative component. Renders a drag-sortable list using slots.
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `T[]` | — | **Required.** Array of items to render and reorder |
+| `slots` | `object` | — | **Required.** Slot configuration (see below) |
+| `itemHeight` | `number` | `70` | Height of each item in px |
+| `itemGap` | `number` | `8` | Gap between items in px |
+| `onChange` | `(newOrder: T[]) => void` | — | Callback with reordered array after drag ends |
+| `keyExtractor` | `(item, index) => string` | — | Key generator for items (from react-list) |
+
+### Slots
+
+```ts
+slots: {
+  // Required — render each draggable item
+  item: Slot<DraggableItemContext<T>>;
+
+  // Optional — render the container wrapper
+  container?: Slot<DraggableContainerContext>;
+}
+```
+
+Each slot accepts three forms:
+1. **Function component:** `slots={{ item: ({ item, dragProps, style }) => <div>...</div> }}`
+2. **React node:** `slots={{ item: <StaticContent /> }}`
+3. **Config object:** `slots={{ item: { component: MyComp, props: { className: 'foo' } } }}`
+
+### Basic Usage
+
+```tsx
+import { animated } from '@react-spring/web';
+import DraggableList from '@jswork/react-draggable-list';
+
+const items = ['React', 'Vue', 'Angular'];
+
+function App() {
+  return (
+    <DraggableList
+      data={items}
+      itemHeight={64}
+      itemGap={8}
+      onChange={(newOrder) => console.log('Reordered:', newOrder)}
+      slots={{
+        item: ({ item, dragProps, style }) => (
+          <animated.div
+            {...dragProps}
+            style={{
+              ...style,
+              position: 'absolute',
+              width: '100%',
+              touchAction: 'none',
+              cursor: 'grab',
+              background: '#fff',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+            }}
+          >
+            {item}
+          </animated.div>
+        ),
+      }}
+    />
+  );
+}
+```
+
+**Important:** The item element MUST be an `animated` component (e.g. `animated.div`) from `@react-spring/web` because `style` contains `SpringValue` animated values. It also needs `position: absolute` and `touchAction: none` for proper drag behavior.
+
+---
+
+## Hook: `useDraggableList`
+
+For building fully custom implementations without the `DraggableList` wrapper.
+
+### Options
+
+```ts
+interface UseDraggableListOptions<T> {
+  data: T[];                              // Required
+  itemHeight?: number;                    // Default: 70
+  itemGap?: number;                       // Default: 8
+  onChange?: (newOrder: T[]) => void;     // Reorder callback
+}
+```
+
+### Return Value
+
+```ts
+interface UseDraggableListReturn<T> {
+  orderedData: T[];                        // Current reordered data
+  containerStyle: React.CSSProperties;     // { position: 'relative', height: number }
+  items: DraggableItemContext<T>[];        // Per-item contexts
+}
+```
+
+### Hook Usage
+
+```tsx
+import { animated } from '@react-spring/web';
+import { useDraggableList } from '@jswork/react-draggable-list';
+
+function MyList({ data }) {
+  const { containerStyle, items } = useDraggableList({
+    data,
+    itemHeight: 64,
+    itemGap: 8,
+    onChange: (newOrder) => console.log(newOrder),
+  });
+
+  return (
+    <div style={containerStyle}>
+      {items.map((ctx) => (
+        <animated.div
+          key={ctx.index}
+          {...ctx.dragProps}
+          style={{
+            ...ctx.style,
+            position: 'absolute',
+            width: '100%',
+            touchAction: 'none',
+          }}
+        >
+          {ctx.item}
+        </animated.div>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+## Context Types
+
+### `DraggableItemContext<T>`
+
+Provided to each item slot, contains everything needed to render and interact:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `item` | `T` | The data item |
+| `index` | `number` | Original index in the data array |
+| `data` | `T[]` | Full data array |
+| `dragProps` | `Record<string, any>` | Spread onto the drag element: `{...dragProps}` |
+| `style` | `object` | Animated styles (see below) |
+| `style.y` | `SpringValue<number>` | Vertical position |
+| `style.scale` | `SpringValue<number>` | Scale factor (1.05 when dragging) |
+| `style.zIndex` | `SpringValue<number>` | Z-index (10 when dragging) |
+| `style.shadow` | `SpringValue<number>` | Box shadow intensity |
+| `style.height` | `number` | Item height in px |
+| `isDragging` | `boolean` | Whether this item is being dragged |
+| `itemHeight` | `number` | Item height in px |
+| `itemGap` | `number` | Gap between items in px |
+
+### `DraggableContainerContext`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `children` | `ReactNode` | Rendered list items |
+| `style` | `CSSProperties` | Container style with computed height |
+
+---
+
+## Container Height Formula
+
+```
+height = data.length * (itemHeight + itemGap) - itemGap
+```
+
+Examples:
+- 3 items, height=70, gap=8 → `3 * 78 - 8 = 226px`
+- 1 item, height=70, gap=8 → `1 * 78 - 8 = 70px`
+- 0 items, height=70, gap=8 → `0 * 78 - 8 = -8px`
+
+---
+
+## Drag Behavior Details
+
+1. **Gesture detection:** Uses `@use-gesture/react` with `filterTaps: true` (ignores clicks with < 3px displacement)
+2. **Order tracking:** Maintains an `order` array as a ref (avoids re-renders during drag — springs drive visuals)
+3. **Spring animation:** Dragged item uses `config.stiff` for y-position, `config.default` for scale/shadow; other items animate to their computed row position
+4. **Visual feedback:** Dragged item gets `scale: 1.05`, `zIndex: 10`, `shadow: 16`
+5. **Reorder:** On drag end, the `order` array is committed and `onChange` fires with the reordered data
+
+---
+
+## Notes for AI Agents
+
+- The item rendering element **must** be an `animated` component from `@react-spring/web` (e.g. `animated.div`, `animated.li`). Regular HTML elements cannot consume `SpringValue`.
+- Always set `position: 'absolute'` on the item element — the container is `position: 'relative'` and items are positioned by their animated `y` value.
+- Always set `touchAction: 'none'` on the item element to prevent browser scroll interference during drag.
+- Spread `dragProps` onto the interactive element: `{...ctx.dragProps}` — this binds the drag gesture handlers.
+- The `style` object contains animated values, so spread it: `style={{ ...ctx.style, /* your overrides */ }}`.
+- `onChange` fires after drag ends with the fully reordered array. Use it to update your state.
+- `isDragging` can be used to apply conditional styles (e.g. different background, opacity).
+- The component is generic — `DraggableList<T>` works with any data type.
