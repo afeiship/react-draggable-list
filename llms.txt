@@ -84,9 +84,42 @@ Each slot accepts three forms:
 
 ### Basic Usage
 
+Prefer splitting slot components into separate files for reusability and testability.
+
+**`DraggableItem.tsx`** — item slot component:
+
 ```tsx
 import { animated } from '@react-spring/web';
+import type { DraggableItemContext } from '@jswork/react-draggable-list';
+
+export function DraggableItem({ item, dragProps, style }: DraggableItemContext<string>) {
+  return (
+    <animated.div
+      {...dragProps}
+      style={{
+        ...style,
+        position: 'absolute',
+        width: '100%',
+        touchAction: 'none',
+        cursor: 'grab',
+        background: '#fff',
+        borderRadius: 8,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 16px',
+      }}
+    >
+      {item}
+    </animated.div>
+  );
+}
+```
+
+**`App.tsx`** — compose the list:
+
+```tsx
 import DraggableList from '@jswork/react-draggable-list';
+import { DraggableItem } from './DraggableItem';
 
 const items = ['React', 'Vue', 'Angular'];
 
@@ -98,29 +131,36 @@ function App() {
       itemGap={8}
       onChange={(newOrder) => console.log('Reordered:', newOrder)}
       slots={{
-        item: ({ item, dragProps, style }) => (
-          <animated.div
-            {...dragProps}
-            style={{
-              ...style,
-              position: 'absolute',
-              width: '100%',
-              touchAction: 'none',
-              cursor: 'grab',
-              background: '#fff',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0 16px',
-            }}
-          >
-            {item}
-          </animated.div>
-        ),
+        item: DraggableItem,
       }}
     />
   );
 }
+```
+
+**`DraggableContainer.tsx`** — optional container slot component:
+
+```tsx
+import type { DraggableContainerContext } from '@jswork/react-draggable-list';
+
+export function DraggableContainer({ children, style }: DraggableContainerContext) {
+  return (
+    <section style={style} className="draggable-list-container">
+      {children}
+    </section>
+  );
+}
+```
+
+```tsx
+// Usage with custom container
+<DraggableList
+  data={items}
+  slots={{
+    item: DraggableItem,
+    container: DraggableContainer,
+  }}
+/>
 ```
 
 **Important:** The item element MUST be an `animated` component (e.g. `animated.div`) from `@react-spring/web` because `style` contains `SpringValue` animated values. It also needs `position: absolute` and `touchAction: none` for proper drag behavior.
@@ -154,9 +194,35 @@ interface UseDraggableListReturn<T> {
 
 ### Hook Usage
 
+**`DraggableItem.tsx`** — item renderer:
+
 ```tsx
 import { animated } from '@react-spring/web';
+import type { DraggableItemContext } from '@jswork/react-draggable-list';
+
+export function DraggableItem(ctx: DraggableItemContext<string>) {
+  return (
+    <animated.div
+      {...ctx.dragProps}
+      style={{
+        ...ctx.style,
+        position: 'absolute',
+        width: '100%',
+        touchAction: 'none',
+        cursor: 'grab',
+      }}
+    >
+      {ctx.item}
+    </animated.div>
+  );
+}
+```
+
+**`MyList.tsx`** — custom list using the hook directly:
+
+```tsx
 import { useDraggableList } from '@jswork/react-draggable-list';
+import { DraggableItem } from './DraggableItem';
 
 function MyList({ data }) {
   const { containerStyle, items } = useDraggableList({
@@ -169,18 +235,7 @@ function MyList({ data }) {
   return (
     <div style={containerStyle}>
       {items.map((ctx) => (
-        <animated.div
-          key={ctx.index}
-          {...ctx.dragProps}
-          style={{
-            ...ctx.style,
-            position: 'absolute',
-            width: '100%',
-            touchAction: 'none',
-          }}
-        >
-          {ctx.item}
-        </animated.div>
+        <DraggableItem key={ctx.index} {...ctx} />
       ))}
     </div>
   );
@@ -245,6 +300,7 @@ Examples:
 
 ## Notes for AI Agents
 
+- **Prefer separate files** for slot components (`DraggableItem.tsx`, `DraggableContainer.tsx`) over inline arrow functions. This improves reusability, testability, and readability.
 - The item rendering element **must** be an `animated` component from `@react-spring/web` (e.g. `animated.div`, `animated.li`). Regular HTML elements cannot consume `SpringValue`.
 - Always set `position: 'absolute'` on the item element — the container is `position: 'relative'` and items are positioned by their animated `y` value.
 - Always set `touchAction: 'none'` on the item element to prevent browser scroll interference during drag.
@@ -253,3 +309,4 @@ Examples:
 - `onChange` fires after drag ends with the fully reordered array. Use it to update your state.
 - `isDragging` can be used to apply conditional styles (e.g. different background, opacity).
 - The component is generic — `DraggableList<T>` works with any data type.
+- When using the hook, spread the context as props: `<DraggableItem key={ctx.index} {...ctx} />`.
