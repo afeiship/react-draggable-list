@@ -1,32 +1,14 @@
-// import noop from '@jswork/noop';
-import cx from 'classnames';
-import { ReactNode, Component, HTMLAttributes } from "react";
+export { DragList } from "./drag-list";
+export { useDragList } from "./use-drag-list";
+export type {
+  DragListProps,
+  DragItemContext,
+  DragContainerContext,
+  Slot,
+  UseDragListOptions,
+  UseDragListReturn,
+} from "./types";
+export { renderSlot, isSlotConfig, clamp, swap } from "./utils";
 
-const CLASS_NAME = "react-draggable-list";
-// const uuid = () => Math.random().toString(36).substring(2, 9);
-export type ReactDraggableListProps = {
-  /**
-   * The extended className for component.
-   * @default ''
-   */
-  className?: string;
-  /**
-   * The children element.
-   */
-  children?: ReactNode;
-} & HTMLAttributes<HTMLDivElement>;
-
-export default class ReactDraggableList extends Component<ReactDraggableListProps> {
-  static displayName = CLASS_NAME;
-  static version = "__VERSION__";
-  static defaultProps = {};
-
-  render() {
-    const { className, children,...rest } = this.props;
-    return (
-      <div data-component={CLASS_NAME} className={cx(CLASS_NAME, className)} {...rest}>
-        {children}
-      </div>
-    );
-  }
-}
+import { DragList } from "./drag-list";
+export default DragList;
