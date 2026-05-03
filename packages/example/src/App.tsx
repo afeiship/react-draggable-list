@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { animated } from '@react-spring/web';
 import { DraggableList } from '@jswork/react-draggable-list/src';
 import type { DraggableItemContext } from '@jswork/react-draggable-list/src';
@@ -17,6 +17,10 @@ const ITEM_GAP = 8;
 
 function App() {
   const [items, setItems] = useState(INITIAL_ITEMS);
+
+  useEffect(() => {
+    console.log('items: ', items);
+  }, [items]);
 
   return (
     <div style={{ maxWidth: 420, margin: '40px auto', fontFamily: 'system-ui, sans-serif' }}>
