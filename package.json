@@ -1,18 +1,20 @@
 {
-  "name": "react-draggable-list",
-  "homepage": "https://js.work",
-  "version": "1.0.1",
+  "name": "@jswork/react-draggable-list",
+  "version": "1.0.0",
   "description": "A simple draggable list component.",
+  "homepage": "https://js.work",
+  "type": "module",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {},
   "scripts": {
     "dev": "cd packages/example && yarn run dev",
-    "predocs": "rm -rf docs",
+    "predocs": "rm -rf docs && node scripts/markdown.js",
     "docs": "cd packages/example && yarn run build",
     "postdocs": "cp -R packages/example/dist docs",
+    "preln:build": "yarn run docs",
+    "ln:test": "cd packages/lib && yarn run test",
     "ln:build": "cd packages/lib && yarn run build",
     "ln:publish": "cd packages/lib && yarn run release"
   }
