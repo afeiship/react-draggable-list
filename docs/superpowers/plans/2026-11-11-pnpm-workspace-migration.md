@@ -4,7 +4,7 @@
 
 **Goal:** 把 `react-draggable-list` monorepo 完整迁移到 pnpm workspace，让安装、本地链接、构建、开发与 docs 发布在 pnpm 下全部可用，且设计文档不被 docs 构建删除。
 
-**Architecture:** 新增 `pnpm-workspace.yaml` 作为 pnpm 的唯一 workspace 声明，删除根 `package.json` 的 `workspaces` 字段，保留 lerna 并补 `packages`。根脚本改为 `pnpm --filter <包名> run <脚本>`，`example` 用 `workspace:*` 链接本地 `lib`。通过 `.npmrc` 开启 pre/post 脚本，并让 `presite` 只清理站点产物、保留 `docs/superpowers/`。
+**Architecture:** 新增 `pnpm-workspace.yaml` 作为 pnpm 的唯一 workspace 声明，删除根 `package.json` 的 `workspaces` 字段，保留 lerna 并补 `packages`。根脚本改为 `pnpm --filter <包名> run <脚本>`，`example` 用 `workspace:*` 链接本地 `lib`。并让 `presite` 只清理站点产物、保留 `docs/superpowers/`。
 
 **Tech Stack:** pnpm 10.22.0、lerna、TypeScript、tsup、Vite 4、React 18、release-it、GitHub Pages、BSD/macOS 命令行工具（`find`、`cp -R`、`rm -rf`）。
 
@@ -19,7 +19,7 @@
 | 文件 | 职责 | 动作 |
 | --- | --- | --- |
 | `pnpm-workspace.yaml` | pnpm 识别 `packages/*` 的唯一来源 | 新建 |
-| `.npmrc` | 开启 `pre*`/`post*` 脚本执行 | 新建 |
+| `.npmrc` | ~~开启 `pre*`/`post*` 脚本执行~~（pnpm 10 下为 no-op，已移除，见修订记录） | 新建后移除 |
 | `package.json` | 根脚本调度（不再声明 workspaces） | 修改 |
 | `lerna.json` | lerna 的 npmClient 与 packages 声明 | 修改 |
 | `packages/example/package.json` | 通过 `workspace:*` 链接本地 lib | 修改 |
@@ -40,7 +40,7 @@
 
 **Files:**
 - Create: `pnpm-workspace.yaml`
-- Create: `.npmrc`
+- Create: `.npmrc`（后移除，见修订记录与设计文档第 10 节修正 4）
 - Modify: `package.json:6-18`
 - Modify: `lerna.json:1-5`
 - Modify: `packages/example/package.json:28`
@@ -62,7 +62,7 @@ packages:
   - 'packages/*'
 ```
 
-- [ ] **Step 3: 新建 `.npmrc`**
+- [ ] **Step 3: 新建 `.npmrc`**（后续已移除：A/B 实测 pnpm 10 无此配置 pre/post 照常执行，保留会在 npm 读取时产生警告）
 
 ```ini
 enable-pre-post-scripts=true
@@ -144,7 +144,7 @@ Expected: 第一条列出 `example@1.0.0` 与 `@jswork/react-draggable-list@1.1.
 - [ ] **Step 10: Commit**
 
 ```bash
-git add pnpm-workspace.yaml .npmrc package.json lerna.json packages/example/package.json .gitignore pnpm-lock.yaml
+git add pnpm-workspace.yaml package.json lerna.json packages/example/package.json .gitignore pnpm-lock.yaml
 git commit -m "build: migrate to pnpm workspace"
 ```
 
@@ -178,7 +178,6 @@ pnpm site       # build the site into docs/ (keeps docs/superpowers/)
 ```
 
 - `packages/example` links `@jswork/react-draggable-list` via `workspace:*`.
-- `.npmrc` enables `pre`/`post` scripts so `presite` / `postsite` run under pnpm.
 - The site script is named `site` (not `docs`): bare `pnpm docs` collides with pnpm's npm-passthrough and would open `homepage` instead of building.
 - Do not use `yarn` or `npm install` in this repo.
 ````
@@ -364,4 +363,4 @@ git commit -m "docs: add pnpm workspace migration plan"
 - **Spec 覆盖**：设计文档第 3 节改动清单 → Task 1；第 3.1 节脚本映射 → Task 1 Step 4；第 4.1 节 pre/post → Task 1 Step 3 + Task 3 Step 3；第 4.2 节 docs 共存 → Task 1 Step 4 + Task 3 Step 3/4；第 5 节数据流 → Task 1/3；第 6 节 6 条验收 → Task 1 Step 8/9 与 Task 3 Step 1/2/3/4/5；第 7 节风险 → `workspace:*`、lockfile 提交、predocs 清理范围均覆盖；第 9 节 README/llms.txt → Task 2。无缺口。
 - **占位符扫描**：无 TBD/TODO/“appropriate error handling”/“similar to Task N”/仅描述不展示命令的步骤。
 - **一致性**：包名 `example`、`@jswork/react-draggable-list` 在根脚本、`--filter`、`pnpm -r list`、`workspace:*` 中一致；`docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md` 路径在验证步骤中一致；`pnpm-lock.yaml` 的 importer 键 `packages/example`、`packages/lib` 与 `pnpm-workspace.yaml` 的 `packages/*` 一致。
-- **已实测**：pnpm 10.22.0；`.npmrc` 开启后 `prefoo`/`postfoo` 均执行；BSD `find -mindepth/-maxdepth` 可用；`cp -R src/. dst/` 能复制点文件；scoped filter 可用。
+- **已实测**：pnpm 10.22.0；`pre*`/`post*` 钩子有无 `.npmrc` 均执行（见修订记录）；BSD `find -mindepth/-maxdepth` 可用；`cp -R src/. dst/` 能复制点文件；scoped filter 可用。
