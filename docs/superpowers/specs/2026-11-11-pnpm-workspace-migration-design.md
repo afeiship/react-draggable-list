@@ -1,0 +1,90 @@
+# pnpm workspace 迁移设计
+
+日期：2026-11-11
+状态：设计已确认，待复核后进入实现计划
+
+## 1. 背景与目标
+
+执行 `pnpm install` 时出现警告：`The "workspaces" field in package.json is not supported by pnpm. Create a "pnpm-workspace.yaml" file instead.`。当前根 `package.json` 使用 yarn/npm 风格的 `workspaces: ["packages/*"]`，pnpm 完全不识别，生成的 `pnpm-lock.yaml` 只有 `importers: .: {}`，`packages/example` 与 `packages/lib` 都没有进入依赖图；根脚本仍然通过 `cd ... && yarn run ...` 调用，属于半迁移状态。
+
+目标：把本 monorepo 完整迁移到 pnpm workspace，同时保留 lerna（`lerna.json` 已改 `npmClient: pnpm`），使安装、本地链接、开发、构建与文档发布全部在 pnpm 下正常工作，且设计文档与站点产物可以共存于 `docs/`。
+
+## 2. 决策
+
+- 采用方案 A：保留 lerna，新增 `pnpm-workspace.yaml` 作为 pnpm 的唯一 workspace 声明。
+- 不做运行时代码改动：不改 `packages/lib` 源码、不改组件行为、不发布、不推送远程。
+- 提交信息使用英文；设计文档与对话文稿使用中文。
+
+## 3. 改动清单
+
+| 文件 | 改动 |
+| --- | --- |
+| `pnpm-workspace.yaml`（新增） | `packages: ['packages/*']` |
+| `package.json` | 删除 `workspaces` 字段；5 个脚本由 `cd ... && yarn run ...` 改为 `pnpm --filter <包名> run <脚本>` |
+| `lerna.json` | 保留 `npmClient: pnpm`，补充 `packages: ['packages/*']`（根 `workspaces` 删除后，lerna 需要明确的包来源） |
+| `packages/example/package.json` | `@jswork/react-draggable-list` 由 `^1.0.0` 改为 `workspace:*`，强制链接本地 `packages/lib` |
+| `.npmrc`（新增） | `enable-pre-post-scripts=true` |
+| `pnpm-lock.yaml` | 重新执行 `pnpm install` 生成完整 lockfile 并提交（当前文件是残缺的） |
+| `.gitignore` | 追加 `.superpowers` |
+| `README.md` | 增加开发章节，说明 pnpm 安装、构建、启动、文档构建命令 |
+| `llms.txt`（新增） | 实现阶段调用 `create-llms` skill 生成，并随代码改动同步更新 |
+| `docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md` | 本设计文档 |
+
+### 3.1 根脚本映射
+
+| 脚本 | 迁移后命令 |
+| --- | --- |
+| `dev` | `pnpm --filter example run dev` |
+| `predocs` | `find docs -mindepth 1 -maxdepth 1 ! -name superpowers ! -name .gitkeep -exec rm -rf {} +` |
+| `docs` | `pnpm --filter example run build` |
+| `postdocs` | `cp -R packages/example/dist/. docs/` |
+| `ln:build` | `pnpm --filter @jswork/react-draggable-list run build` |
+| `ln:publish` | `pnpm --filter @jswork/react-draggable-list run release` |
+
+## 4. 关键约束与处理
+
+### 4.1 pnpm 默认不执行 pre/post 脚本
+
+pnpm 出于安全考虑默认禁用任意 `pre*`/`post*` 脚本（只保留有限的内置生命周期），因此 `predocs` 与 `postdocs` 会被静默跳过，站点产物不会复制到 `docs/`。用 `.npmrc` 中 `enable-pre-post-scripts=true` 显式开启，保留现有脚本结构，不做脚本合并。
+
+### 4.2 设计文档与 docs 构建共存
+
+`predocs` 原本是 `rm -rf docs`，而设计文档按规范落在 `docs/superpowers/specs/`，下一次 `pnpm docs` 会删除它。处理方式：
+
+- `predocs` 只清理 `docs/` 下除 `superpowers/` 与 `.gitkeep` 之外的一级条目，保留设计文档目录；
+- `postdocs` 由 `cp -R packages/example/dist docs` 改为 `cp -R packages/example/dist/. docs/`，把构建产物内容复制到已存在的 `docs/` 中，而不是生成 `docs/dist/`。GitHub Pages 的入口路径 `docs/index.html` 保持不变。
+
+以 BSD `cp` 的 `源目录/.` 形式复制内容，可同时覆盖带点文件（如 `.nojekyll`），避免 `*` 通配遗漏。
+
+## 5. 数据流
+
+`pnpm install`（读取 `pnpm-workspace.yaml`，识别两个包，写入两个 importer 到 lockfile）→ `example` 通过 `workspace:*` 链接到 `packages/lib` → `pnpm ln:build` 产出 `dist/index.esm.js`、`dist/index.cjs.js`、`dist/index.d.ts` → `pnpm dev` 启动 vite / `pnpm docs` 构建站点并复制到 `docs/` → 设计文档保留在 `docs/superpowers/`。
+
+## 6. 验证（验收标准）
+
+1. `pnpm install`：无 `workspaces` 警告；`pnpm-lock.yaml` 的 `importers` 同时包含 `packages/example` 与 `packages/lib`；`pnpm -r list --depth -1` 列出两个包。
+2. `pnpm --filter example list --depth 0` 显示 `@jswork/react-draggable-list` 为 `link:../lib`。
+3. `pnpm ln:build`：tsup 构建成功，三个 dist 入口文件存在。
+4. `pnpm dev`：vite 正常启动（启动后检查本地端口可访问，再退出）。
+5. `pnpm docs`：`docs/index.html` 存在，且 `docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md` 仍存在。
+6. `git check-ignore .superpowers` 有输出；`pnpm-lock.yaml` 不再是未跟踪文件。
+
+无新增运行时错误处理路径；以上命令即为本次迁移的测试。若任何一条失败，先修正配置再重新执行，不做"应该没问题"的声明。
+
+## 7. 风险
+
+- **供应链可复现性**：重新生成 lockfile 会重新解析全部依赖；当前 `lockfileVersion: '9.0'` 要求 pnpm 9+。必须提交 `pnpm-lock.yaml`，不能继续忽略它。
+- **误装旧版组件**：`example` 依赖原本是 `^1.0.0`，而 `lib` 已发布到 `1.1.18`；`workspace:*` 保证 demo 始终使用本地源码。
+- **发布流程**：`workspace:*` 只出现在私有包 `example` 中，`packages/lib` 内没有 workspace 依赖，release-it 发布不受影响。
+- **破坏性命令**：`predocs` 会对 `docs/` 一级条目执行 `rm -rf`，实现阶段执行前需先确认目标内容；该命令只作用于静态站点产物，不涉及源码。
+- **lerna 依赖缺失**：`lerna` 当前未列入任何 `devDependencies`，`lerna.json` 的 `$schema` 是悬空引用。这是既有状态，本次不修。
+
+## 8. 范围外
+
+- 不改 `packages/lib` / `packages/example` 的组件源码与行为。
+- 不新增测试框架、不改动 CI、不做版本发布、不推送远程。
+- 不重构 `release-it` 配置与 tsup/vite 配置。
+
+## 9. 后续
+
+设计文档复核通过后，调用 `superpowers:writing-plans` 生成实现计划；实现阶段所有涉及代码的改动同步更新 `README.md` 与 `llms.txt`。
