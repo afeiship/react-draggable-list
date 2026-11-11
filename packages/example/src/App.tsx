@@ -102,8 +102,6 @@ function App() {
           console.log('onDrop: ', e.target);
         }}
       />
-      <hr />
-      <h2>不同的group</h2>
     </>
   );
 }

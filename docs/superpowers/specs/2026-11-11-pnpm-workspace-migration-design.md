@@ -23,7 +23,7 @@
 | `package.json` | 删除 `workspaces` 字段；5 个脚本由 `cd ... && yarn run ...` 改为 `pnpm --filter <包名> run <脚本>` |
 | `lerna.json` | 保留 `npmClient: pnpm`，补充 `packages: ['packages/*']`（根 `workspaces` 删除后，lerna 需要明确的包来源） |
 | `packages/example/package.json` | `@jswork/react-draggable-list` 由 `^1.0.0` 改为 `workspace:*`，强制链接本地 `packages/lib` |
-| `.npmrc`（新增） | `enable-pre-post-scripts=true` |
+| `.npmrc`（新增，后移除） | `enable-pre-post-scripts=true`（见第 10 节修正 4：pnpm 10 下为 no-op，已移除） |
 | `pnpm-lock.yaml` | 重新执行 `pnpm install` 生成完整 lockfile 并提交（当前文件是残缺的） |
 | `.gitignore` | 追加 `.superpowers` |
 | `README.md` | 增加开发章节，说明 pnpm 安装、构建、启动、文档构建命令 |
@@ -45,9 +45,9 @@
 
 ## 4. 关键约束与处理
 
-### 4.1 pnpm 默认不执行 pre/post 脚本
+### 4.1 pre/post 脚本执行（修正见第 10 节第 4 条）
 
-pnpm 出于安全考虑默认禁用任意 `pre*`/`post*` 脚本（只保留有限的内置生命周期），因此 `presite` 与 `postsite` 会被静默跳过，站点产物不会复制到 `docs/`。用 `.npmrc` 中 `enable-pre-post-scripts=true` 显式开启，保留现有脚本结构，不做脚本合并。
+初稿假设 pnpm 默认禁用任意 `pre*`/`post*` 脚本、需要 `.npmrc` 中 `enable-pre-post-scripts=true` 显式开启。代码质量审查在 pnpm 10.22.0 上 A/B 实测推翻了该假设：无论是否配置该项，`presite`/`postsite` 都会围绕 `site` 执行；该配置在 pnpm 10 中是 no-op（且会让 npm 读项目 `.npmrc` 时产生 unknown config 警告）。已移除 `.npmrc`，保留 `pre*`/`post*` 脚本结构不变。
 
 ### 4.2 设计文档与 docs 构建共存
 
@@ -97,7 +97,8 @@ pnpm 出于安全考虑默认禁用任意 `pre*`/`post*` 脚本（只保留有�
 Task 1 实现通过规格审查后，代码质量审查发现两处**计划/设计自身缺陷**，均已由控制器在本机复现确认，修订如下：
 
 1. **`docs` 脚本名与 pnpm 内置透传冲突（阻塞）**：pnpm 10 的 CLI 入口把 `argv[0]` 为 `docs`（以及 `home`、`info`、`view` 等）的裸命令硬编码转发给 npm（`passThruToNpm`），`npm docs` 会打开 `homepage` 并以退出码 0 结束——`predocs`/`docs`/`postdocs` 一个都不会执行。实测：裸 `pnpm docs` 无任何脚本运行；`pnpm run docs`、`pnpm -C <dir> docs` 正常。**修正**：脚本更名为 `site`/`presite`/`postsite`（不在透传列表，裸 `pnpm site` 可用），`docs/` 目录名与 GitHub Pages 入口不变。
-2. **pnpm 严格解析暴露 `packages/lib` 幽灵依赖（阻塞 Task 3）**：`packages/lib/src/index.tsx` 引用 `@jswork/noop` 与 `classnames` 但 `package.json` 从未声明，yarn 扁平布局下碰巧可解析。**修正**：在 `packages/lib/package.json` 的 `dependencies` 补声明 `@jswork/noop@^1.0.0`、`classnames@^2.5.1`（版本对齐 lockfile 中既有解析结果）。已实测：补声明后 lib 与 example 的全部 TS2307 消失。
+2. **pnpm 严格解析暴露 `packages/lib` 幽灵依赖（阻塞 Task 3）**：`packages/lib/src/index.tsx` 引用 `@jswork/noop` 与 `classnames` 但 `package.json` 从未声明，yarn 扁平布局下碰巧可解析。**修正**：在 `packages/lib/package.json` 的 `dependencies` 补声明（钉版 `@jswork/noop@1.0.0`、`classnames@2.5.1`，对齐 lockfile 既有解析结果）。已实测：补声明后 lib 与 example 的全部 TS2307 消失。
 3. **example 既有 TypeScript 报错（阻塞 Task 3）**：`tsc --noEmit` 另有 12 条既有报错（未使用的 `items1`/`items2`、`useState([])` 推断 `never`、`emptySlot` 传函数与 `React.ReactNode` 不匹配、`main.tsx` 冗余 `React` 导入）。yarn 时代从未真正跑通该检查链。**修正**：做最小 demo 修复——删除未用常量及其死注释 JSX、`useState` 加泛型、`emptySlot` 传元素、删除冗余导入；组件接口与交互不变。
+4. **`enable-pre-post-scripts` 在 pnpm 10 下为 no-op（Task 2.5 审查发现）**：A/B 实测 pnpm 10.22.0 无论有无该配置，`presite`/`postsite` 均执行；pnpm 10 已不从 `.npmrc` 读取该键，且该行会让 npm 读项目 `.npmrc` 时报警告。**修正**：删除 `.npmrc`，§4.1 假设已订正。
 
 原计划中所有 `pnpm docs` 验收命令相应改为 `pnpm site`。

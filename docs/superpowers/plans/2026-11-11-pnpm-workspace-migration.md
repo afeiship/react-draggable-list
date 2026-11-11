@@ -8,7 +8,7 @@
 
 **Tech Stack:** pnpm 10.22.0、lerna、TypeScript、tsup、Vite 4、React 18、release-it、GitHub Pages、BSD/macOS 命令行工具（`find`、`cp -R`、`rm -rf`）。
 
-> **修订记录（2026-11-11）**：Task 1 代码质量审查发现两处计划缺陷（详见设计文档第 10 节）：① 裸 `pnpm docs` 被 pnpm 硬编码透传给 npm（打开 homepage，不执行任何脚本），脚本更名为 `site`/`presite`/`postsite`；② pnpm 严格解析暴露 `packages/lib` 幽灵依赖与 example 既有 TS 报错，新增 Task 2.5 处理。文中各处命令已同步更新。
+> **修订记录（2026-11-11）**：Task 1 代码质量审查发现两处计划缺陷（详见设计文档第 10 节）：① 裸 `pnpm docs` 被 pnpm 硬编码透传给 npm（打开 homepage，不执行任何脚本），脚本更名为 `site`/`presite`/`postsite`；② pnpm 严格解析暴露 `packages/lib` 幽灵依赖与 example 既有 TS 报错，新增 Task 2.5 处理。Task 2.5 质量审查另发现 `enable-pre-post-scripts` 在 pnpm 10 下为 no-op（A/B 实测），`.npmrc` 已移除（设计文档第 10 节修正 4）。文中各处命令已同步更新。
 
 参考设计文档：`docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md`。
 

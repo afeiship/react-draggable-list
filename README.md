@@ -17,7 +17,7 @@ pnpm site       # build the site into docs/ (keeps docs/superpowers/)
 ```
 
 - `packages/example` links `@jswork/react-draggable-list` via `workspace:*`.
-- `.npmrc` enables `pre`/`post` scripts so `presite` / `postsite` run under pnpm.
+- pnpm runs `presite` / `postsite` around `site` automatically.
 - The site script is named `site` (not `docs`): bare `pnpm docs` collides with pnpm's npm-passthrough and would open `homepage` instead of building.
 - Do not use `yarn` or `npm install` in this repo.
 
