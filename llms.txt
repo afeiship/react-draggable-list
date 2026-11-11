@@ -1,0 +1,37 @@
+# react-draggable-list
+
+> A pnpm workspace hosting `@jswork/react-draggable-list`, a simple React draggable/sortable list component built on SortableJS, plus a Vite-based example app. Lerna drives cross-package publishing with pnpm as the npm client.
+
+This repo is a pnpm workspace (`pnpm-workspace.yaml` + `lerna.json`) with two packages: `packages/lib` (the publishable component library) and `packages/example` (Vite demo that links the lib via `workspace:*`). Use `pnpm install`, `pnpm ln:build` (build the lib), `pnpm dev` (run the example), and `pnpm site` (build the demo into `docs/`). Do not use `yarn` or `npm install`.
+
+## Documentation
+
+- [README](README.md): Project overview, installation, properties, and usage guide
+- [Library README](packages/lib/README.md): Component documentation (same content as root README)
+- [Example README](packages/example/README.md): Vite + React + TypeScript example app notes
+- [Migration Plan](docs/superpowers/plans/2026-11-11-pnpm-workspace-migration.md): Step-by-step pnpm workspace migration plan
+- [Migration Design](docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md): Design rationale for the pnpm workspace migration
+
+## Source
+
+- [Component entry](packages/lib/src/index.tsx): ReactDraggableList component implementation (props: className, onChange, items, template, rowKey, options)
+- [Component styles](packages/lib/src/style.scss): Sortable styles for the draggable list
+- [Example app](packages/example/src/App.tsx): Demo usage of ReactDraggableList
+- [Example entry](packages/example/src/main.tsx): Vite app bootstrap
+
+## Configuration
+
+- [Workspace config](pnpm-workspace.yaml): Defines `packages/*` as workspace members
+- [Lerna config](lerna.json): Versioning and publishing via lerna with pnpm client
+- [Root package.json](package.json): Workspace scripts (`dev`, `site`, `ln:build`, `ln:publish`)
+- [Library package.json](packages/lib/package.json): `@jswork/react-draggable-list` package manifest and build/release scripts
+- [Example package.json](packages/example/package.json): Example app manifest linking the lib via `workspace:*`
+- [npmrc](.npmrc): Enables pre/post scripts (`enable-pre-post-scripts=true`) for pnpm
+- [Build config](packages/lib/tsup.config.ts): tsup build config for the library bundle
+- [Vite config](packages/example/vite.config.ts): Vite config for the example app
+
+## Optional
+
+- [Release config](packages/lib/.release-it.json): release-it settings for library publishing
+- [TypeScript config](packages/lib/tsconfig.json): TypeScript settings for the library
+- [Example TypeScript config](packages/example/tsconfig.json): TypeScript settings for the example app
