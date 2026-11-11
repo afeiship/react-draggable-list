@@ -8,6 +8,8 @@
 
 **Tech Stack:** pnpm 10.22.0、lerna、TypeScript、tsup、Vite 4、React 18、release-it、GitHub Pages、BSD/macOS 命令行工具（`find`、`cp -R`、`rm -rf`）。
 
+> **修订记录（2026-11-11）**：Task 1 代码质量审查发现两处计划缺陷（详见设计文档第 10 节）：① 裸 `pnpm docs` 被 pnpm 硬编码透传给 npm（打开 homepage，不执行任何脚本），脚本更名为 `site`/`presite`/`postsite`；② pnpm 严格解析暴露 `packages/lib` 幽灵依赖与 example 既有 TS 报错，新增 Task 2.5 处理。文中各处命令已同步更新。
+
 参考设计文档：`docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md`。
 
 ---
@@ -80,9 +82,9 @@ enable-pre-post-scripts=true
   "dependencies": {},
   "scripts": {
     "dev": "pnpm --filter example run dev",
-    "predocs": "find docs -mindepth 1 -maxdepth 1 ! -name superpowers ! -name .gitkeep -exec rm -rf {} +",
-    "docs": "pnpm --filter example run build",
-    "postdocs": "cp -R packages/example/dist/. docs/",
+    "presite": "find docs -mindepth 1 -maxdepth 1 ! -name superpowers ! -name .gitkeep -exec rm -rf {} +",
+    "site": "pnpm --filter example run build",
+    "postsite": "cp -R packages/example/dist/. docs/",
     "ln:build": "pnpm --filter @jswork/react-draggable-list run build",
     "ln:publish": "pnpm --filter @jswork/react-draggable-list run release"
   }
@@ -146,6 +148,12 @@ git add pnpm-workspace.yaml .npmrc package.json lerna.json packages/example/pack
 git commit -m "build: migrate to pnpm workspace"
 ```
 
+> **Task 1R 返工（修订后）**：脚本名 `docs/predocs/postdocs` → `site/presite/postsite`（Step 4 的 JSON 已更新为最终形态）。返工提交：
+> ```bash
+> git add package.json
+> git commit -m "build: rename docs scripts to site to avoid pnpm npm-passthrough"
+> ```
+
 ---
 
 ## Task 2: 更新 README 与生成 llms.txt
@@ -166,11 +174,12 @@ git commit -m "build: migrate to pnpm workspace"
 pnpm install
 pnpm ln:build   # build packages/lib before running the example
 pnpm dev        # start the vite example
-pnpm docs       # build the site into docs/ (keeps docs/superpowers/)
+pnpm site       # build the site into docs/ (keeps docs/superpowers/)
 ```
 
 - `packages/example` links `@jswork/react-draggable-list` via `workspace:*`.
-- `.npmrc` enables `pre`/`post` scripts so `predocs` / `postdocs` run under pnpm.
+- `.npmrc` enables `pre`/`post` scripts so `presite` / `postsite` run under pnpm.
+- The site script is named `site` (not `docs`): bare `pnpm docs` collides with pnpm's npm-passthrough and would open `homepage` instead of building.
 - Do not use `yarn` or `npm install` in this repo.
 ````
 
@@ -192,6 +201,66 @@ Expected: 两组 grep 都有输出，且 `README.md` 不再出现任何 `yarn ru
 ```bash
 git add README.md llms.txt
 git commit -m "docs: add pnpm development guide and llms.txt"
+```
+
+---
+
+## Task 2.5: 幽灵依赖声明与 example 类型修复
+
+> 修订新增（原因见设计文档第 10 节修正记录）：pnpm 严格解析暴露两处阻塞——`packages/lib` 未声明的运行时依赖、`packages/example` 既有的 12 条 TS 报错。不修则 Task 3 的 `site`/`dev`/`ln:build` 验收全部失败。
+
+**Files:**
+- Modify: `packages/lib/package.json:38-43`（dependencies 补两项）
+- Modify: `packages/example/src/App.tsx`
+- Modify: `packages/example/src/main.tsx`
+- Modify: `pnpm-lock.yaml`（随 install 重新生成）
+
+- [ ] **Step 1: 写失败检查**
+
+Run:
+```bash
+pnpm --filter example exec tsc --noEmit 2>&1 | tee /tmp/tsc-before.log
+grep -c "Cannot find module '@jswork/noop'" /tmp/tsc-before.log
+grep -c "error TS6133" /tmp/tsc-before.log
+```
+Expected: 第一条 grep 输出 `1`（lib 幽灵依赖报错传染 example）；第二条输出 `3`（items1、items2、main.tsx 的 React）。
+
+- [ ] **Step 2: `packages/lib/package.json` 的 `dependencies` 补声明**
+
+在 `"dependencies"` 中按字母序插入（版本对齐 lockfile 既有解析结果）：
+```json
+    "@jswork/noop": "^1.0.0",
+    "classnames": "^2.5.1",
+```
+
+- [ ] **Step 3: 修复 `packages/example/src/App.tsx` 的既有类型错误**
+
+1. 删除未使用的 `const items1 = [...]`（约 5-36 行）与 `const items2 = [...]`（约 38-73 行），以及文件末尾引用它们的注释掉的 JSX 死代码块（`{/* <ReactDraggableList ... */}` 段落，若存在）。
+2. `const [sharedItems1, setSharedItems1] = useState([]);` 改为：
+```ts
+const [sharedItems1, setSharedItems1] = useState<{ id: number; title: string }[]>([]);
+```
+3. `emptySlot={() => <div>empty2</div>}` 改为 `emptySlot={<div>empty2</div>}`（与 `emptySlot={<div>empty1</div>` 的用法对齐，匹配 `React.ReactNode` 类型）。
+
+- [ ] **Step 4: 修复 `packages/example/src/main.tsx`**
+
+删除第一行未使用的 `import React from 'react';`（项目用 `react-jsx` 转换，无需显式导入）。
+
+- [ ] **Step 5: 重装并验证类型检查通过**
+
+Run:
+```bash
+pnpm install
+pnpm --filter example exec tsc --noEmit
+pnpm --filter @jswork/react-draggable-list exec tsc --noEmit -p tsconfig.json
+```
+Expected: 两条 tsc 均退出码 0、无输出。
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add packages/lib/package.json packages/example/src/App.tsx packages/example/src/main.tsx pnpm-lock.yaml
+git commit -m "fix: declare lib runtime deps and repair example type errors"
 ```
 
 ---
@@ -224,17 +293,25 @@ wait "$(cat /tmp/pnpm-dev.pid)" 2>/dev/null || true
 ```
 Expected: 日志含 `Local:` 与 `ready in`；`curl` 成功；进程被正常终止。若端口被占用，读取 `/tmp/pnpm-dev.log` 中的实际端口并对该端口执行 `curl`。
 
-- [ ] **Step 3: 验证 docs 构建保留设计文档**
+- [ ] **Step 3: 验证 site 构建保留设计文档**
 
 Run:
 ```bash
 test -f docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md
-pnpm docs 2>&1 | tee /tmp/pnpm-docs.log
+pnpm site 2>&1 | tee /tmp/pnpm-site.log
 test -f docs/index.html
 test -f docs/superpowers/specs/2026-11-11-pnpm-workspace-migration-design.md
-grep -E 'PRE|POST|vite|built' /tmp/pnpm-docs.log | head -20
+grep -E 'presite|postsite|vite|built' /tmp/pnpm-site.log | head -20
 ```
 Expected: 全部 `test` 通过（无输出）；`docs/index.html` 存在；设计文档仍存在；日志显示 vite 构建成功。
+
+- [ ] **Step 3a: 验证 example 类型检查通过**
+
+Run:
+```bash
+pnpm --filter example exec tsc --noEmit
+```
+Expected: 退出码 0，无错误输出。
 
 - [ ] **Step 4: 清理未提交的站点产物**
 
