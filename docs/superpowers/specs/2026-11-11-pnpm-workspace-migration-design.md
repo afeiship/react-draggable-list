@@ -79,7 +79,7 @@ pnpm 出于安全考虑默认禁用任意 `pre*`/`post*` 脚本（只保留有�
 - **供应链可复现性**：重新生成 lockfile 会重新解析全部依赖；当前 `lockfileVersion: '9.0'` 要求 pnpm 9+。必须提交 `pnpm-lock.yaml`，不能继续忽略它。
 - **误装旧版组件**：`example` 依赖原本是 `^1.0.0`，而 `lib` 已发布到 `1.1.18`；`workspace:*` 保证 demo 始终使用本地源码。
 - **发布流程**：`workspace:*` 只出现在私有包 `example` 中，`packages/lib` 内没有 workspace 依赖，release-it 发布不受影响。
-- **破坏性命令**：`predocs` 会对 `docs/` 一级条目执行 `rm -rf`，实现阶段执行前需先确认目标内容；该命令只作用于静态站点产物，不涉及源码。
+- **破坏性命令**：`presite` 会对 `docs/` 一级条目执行 `rm -rf`，实现阶段执行前需先确认目标内容；该命令只作用于静态站点产物，不涉及源码。
 - **lerna 依赖缺失**：`lerna` 当前未列入任何 `devDependencies`，`lerna.json` 的 `$schema` 是悬空引用。这是既有状态，本次不修。
 
 ## 8. 范围外

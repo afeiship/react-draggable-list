@@ -4,7 +4,7 @@
 
 **Goal:** 把 `react-draggable-list` monorepo 完整迁移到 pnpm workspace，让安装、本地链接、构建、开发与 docs 发布在 pnpm 下全部可用，且设计文档不被 docs 构建删除。
 
-**Architecture:** 新增 `pnpm-workspace.yaml` 作为 pnpm 的唯一 workspace 声明，删除根 `package.json` 的 `workspaces` 字段，保留 lerna 并补 `packages`。根脚本改为 `pnpm --filter <包名> run <脚本>`，`example` 用 `workspace:*` 链接本地 `lib`。通过 `.npmrc` 开启 pre/post 脚本，并让 `predocs` 只清理站点产物、保留 `docs/superpowers/`。
+**Architecture:** 新增 `pnpm-workspace.yaml` 作为 pnpm 的唯一 workspace 声明，删除根 `package.json` 的 `workspaces` 字段，保留 lerna 并补 `packages`。根脚本改为 `pnpm --filter <包名> run <脚本>`，`example` 用 `workspace:*` 链接本地 `lib`。通过 `.npmrc` 开启 pre/post 脚本，并让 `presite` 只清理站点产物、保留 `docs/superpowers/`。
 
 **Tech Stack:** pnpm 10.22.0、lerna、TypeScript、tsup、Vite 4、React 18、release-it、GitHub Pages、BSD/macOS 命令行工具（`find`、`cp -R`、`rm -rf`）。
 
@@ -28,7 +28,7 @@
 | `README.md` | 增加 pnpm 开发命令说明 | 修改 |
 | `llms.txt` | 仓库结构索引（调用 `create-llms` skill 生成） | 新建 |
 | `docs/superpowers/plans/2026-11-11-pnpm-workspace-migration.md` | 本计划 | 新建 |
-| `docs/index.html` 等站点产物 | `pnpm docs` 的验证产物，不提交 | 生成后删除 |
+| `docs/index.html` 等站点产物 | `pnpm site` 的验证产物，不提交 | 生成后删除 |
 
 **不改动**：`packages/lib/src/**`、`packages/example/src/**`、`tsup.config.ts`、`vite.config.ts`、`.release-it.json`。不发布、不推送远程。
 
@@ -223,14 +223,14 @@ pnpm --filter example exec tsc --noEmit 2>&1 | tee /tmp/tsc-before.log
 grep -c "Cannot find module '@jswork/noop'" /tmp/tsc-before.log
 grep -c "error TS6133" /tmp/tsc-before.log
 ```
-Expected: 第一条 grep 输出 `1`（lib 幽灵依赖报错传染 example）；第二条输出 `3`（items1、items2、main.tsx 的 React）。
+Expected（取决于工作树起点）：若 lib 依赖尚未声明，第一条 grep 输出 `1`、第二条输出 `3`（items1、items2、main.tsx 的 React）；若控制器探针已把依赖声明留在工作树（TS2307 计数为 0、仅剩 12 条 example 报错），则视同"Step 2 已完成"的中间态，直接从 Step 3 继续，不回退探针。
 
 - [ ] **Step 2: `packages/lib/package.json` 的 `dependencies` 补声明**
 
-在 `"dependencies"` 中按字母序插入（版本对齐 lockfile 既有解析结果）：
+在 `"dependencies"` 中按字母序插入（钉版，对齐 lockfile 既有解析结果）：
 ```json
-    "@jswork/noop": "^1.0.0",
-    "classnames": "^2.5.1",
+    "@jswork/noop": "1.0.0",
+    "classnames": "2.5.1",
 ```
 
 - [ ] **Step 3: 修复 `packages/example/src/App.tsx` 的既有类型错误**
