@@ -7,9 +7,9 @@
   "dependencies": {},
   "scripts": {
     "dev": "pnpm --filter example run dev",
-    "predocs": "find docs -mindepth 1 -maxdepth 1 ! -name superpowers ! -name .gitkeep -exec rm -rf {} +",
-    "docs": "pnpm --filter example run build",
-    "postdocs": "cp -R packages/example/dist/. docs/",
+    "presite": "find docs -mindepth 1 -maxdepth 1 ! -name superpowers ! -name .gitkeep -exec rm -rf {} +",
+    "site": "pnpm --filter example run build",
+    "postsite": "cp -R packages/example/dist/. docs/",
     "ln:build": "pnpm --filter @jswork/react-draggable-list run build",
     "ln:publish": "pnpm --filter @jswork/react-draggable-list run release"
   }
