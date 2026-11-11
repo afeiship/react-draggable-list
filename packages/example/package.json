@@ -25,6 +25,6 @@
     "typescript": "^5.0.2",
     "sass": "^1.69.5",
     "vite": "^4.4.5",
-    "@jswork/react-draggable-list": "^1.0.0"
+    "@jswork/react-draggable-list": "workspace:*"
   }
 }

@@ -2,73 +2,6 @@ import { useEffect, useState } from 'react';
 import ReactDraggableList from '../../lib/src';
 import './App.css';
 
-const items1 = [
-  {
-    title: '猫妖传1',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传2',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传3',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传4',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传5',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传6',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-];
-
-const items2 = [
-  {
-    title: '猫妖传1',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传2',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传3',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传4',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传5',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-  {
-    title: '猫妖传6',
-    img: 'http://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg',
-    description: '讲述大唐传奇的奇幻剧',
-  },
-];
-
-
 const sharedItems2 = [
   {
     id: 1,
@@ -125,7 +58,7 @@ function App() {
     console.log('on change value: ', e.target.value);
   };
 
-  const [sharedItems1, setSharedItems1] = useState([]);
+  const [sharedItems1, setSharedItems1] = useState<{ id: number; title: string }[]>([]);
 
 
   useEffect(() => {
@@ -163,29 +96,12 @@ function App() {
         className="dg4"
         template={({ item }) => <div key={item.id}>{item.title}</div>}
         items={sharedItems2}
-        emptySlot={() => <div>empty2</div>}
+        emptySlot={<div>empty2</div>}
         onChange={onChange}
         onChooseDrop={(e) => {
           console.log('onDrop: ', e.target);
         }}
       />
-      <hr />
-      <h2>不同的group</h2>
-      {/* <ReactDraggableList
-        className="dg1"
-        onChange={onChange}
-        template={({ item }) => <div key={item.id}>{item.title}</div>}
-        rowKey="title"
-        items={items1}
-      />
-
-      <ReactDraggableList
-        className="dg2"
-        onChange={onChange}
-        template={({ item }) => <div key={item.id}>{item.title}</div>}
-        rowKey="title"
-        items={items2}
-      /> */}
     </>
   );
 }

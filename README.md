@@ -6,6 +6,21 @@
 [![size][size-image]][size-url]
 [![download][download-image]][download-url]
 
+## development
+> This repo uses pnpm workspace (`pnpm-workspace.yaml`) with lerna.
+
+```shell
+pnpm install
+pnpm ln:build   # build packages/lib before running the example
+pnpm dev        # start the vite example
+pnpm site       # build the site into docs/ (keeps docs/superpowers/)
+```
+
+- `packages/example` links `@jswork/react-draggable-list` via `workspace:*`.
+- pnpm runs `presite` / `postsite` around `site` automatically.
+- The site script is named `site` (not `docs`): bare `pnpm docs` collides with pnpm's npm-passthrough and would open `homepage` instead of building.
+- Do not use `yarn` or `npm install` in this repo.
+
 ## installation
 ```shell
 npm install -S @jswork/react-draggable-list
